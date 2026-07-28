@@ -1,1 +1,5 @@
 .DS_Store
+
+# CLAUDE.md local — só a superfície de carregamento do Claude Code, aponta pro
+# workspace privado do autor via @import; não faz sentido pra quem clona o repo.
+CLAUDE.md
