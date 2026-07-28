@@ -1,0 +1,23 @@
+{
+  "name": "filhodoed",
+  "owner": {
+    "name": "Edson Junior",
+    "url": "https://github.com/filhodoed"
+  },
+  "description": "Edson Junior's public skills for Claude Code.",
+  "plugins": [
+    {
+      "name": "filhodoed-skills",
+      "source": "./",
+      "description": "Public agent skills — starting with mof: Map of Functions, a living map of a system's functions, dependencies, and blast radius that agents consult before changing code.",
+      "category": "engineering",
+      "keywords": [
+        "map-of-functions",
+        "blast-radius",
+        "impact-analysis",
+        "architecture",
+        "documentation"
+      ]
+    }
+  ]
+}
