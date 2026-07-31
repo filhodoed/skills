@@ -4,6 +4,8 @@ All notable changes to this project are documented here. Format follows [Keep a 
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-07-31
+
 ### Added
 
 - Per-skill `README.md` (starting with `skills/mof/README.md`), so each skill documents itself in its own directory as more skills join the repo.
