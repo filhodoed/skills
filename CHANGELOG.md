@@ -4,6 +4,15 @@ All notable changes to this project are documented here. Format follows [Keep a 
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-07-31
+
+### Changed
+
+- `mof` skill: trimmed the description's trigger list — several quoted phrases just restated branches already covered in plain language; collapsed to one mention per branch.
+- `mof` skill: Mode D's translation rules, palette, and full HTML template moved out of `SKILL.md` into `visualization.md`; the `docs/MOF.md` document template moved into `mof-template.md`. Keeps `SKILL.md` short for the common case — Mode B (impact query, the skill's most frequent trigger) no longer pulls in ~300 lines of HTML/palette it never uses.
+- `mof` skill: the color palette is now the skill's own, no longer sourced from the `dataviz` skill — drops an external dependency the skill had no reliable way to re-validate against.
+- `skills/mof/README.md`: "Try it without installing the plugin" now fetches `mof-template.md` and `visualization.md` alongside `SKILL.md`, since the skill is no longer a single file.
+
 ## [0.2.0] - 2026-07-31
 
 ### Added

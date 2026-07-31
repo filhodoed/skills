@@ -1,6 +1,6 @@
 {
   "name": "filhodoed-skills",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Edson Junior's public agent skills — starting with mof: Map of Functions, a living map of a system's functions, dependencies, and blast radius that agents consult before changing code.",
   "author": {
     "name": "Edson Junior",
