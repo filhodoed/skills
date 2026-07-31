@@ -28,5 +28,8 @@ Every item gets a collision-safe ID: functions use `F_<DOMAIN>_<NNN>` (e.g. `F_B
 ## Try it without installing the plugin
 
 ```bash
-mkdir -p .claude/skills/mof && curl -fsSL https://raw.githubusercontent.com/filhodoed/skills/main/skills/mof/SKILL.md -o .claude/skills/mof/SKILL.md
+mkdir -p .claude/skills/mof && cd .claude/skills/mof \
+  && curl -fsSLO https://raw.githubusercontent.com/filhodoed/skills/main/skills/mof/SKILL.md \
+  && curl -fsSLO https://raw.githubusercontent.com/filhodoed/skills/main/skills/mof/mof-template.md \
+  && curl -fsSLO https://raw.githubusercontent.com/filhodoed/skills/main/skills/mof/visualization.md
 ```
