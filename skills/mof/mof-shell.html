@@ -1,0 +1,130 @@
+<!doctype html>
+<!--
+  Fixed page shell for Mode D of the `mof` skill. Copy to docs/MOF.html and
+  fill the five markers; see visualization.md for what each one takes. Do not
+  retype this shell, do not restyle it per project, and do not list the marker
+  names in a comment here: a fill would substitute them inside the comment too,
+  and Mermaid's own arrow syntax would close the comment early and dump the
+  rest of the page as visible text.
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Map of Functions — {{TITLE}}</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11.16.1/dist/mermaid.min.js"></script>
+<style>
+  :root {
+    color-scheme: light;
+    --surface-page: #f9f9f7; --surface-1: #fcfcfb;
+    --text-primary: #0b0b0b; --text-secondary: #52514e; --text-muted: #898781;
+    --border: rgba(11,11,11,0.10); --gridline: #e1e0d9;
+    --risk-critical: #d03b3b; --risk-serious: #ec835a; --risk-warning: #fab219;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      color-scheme: dark;
+      --surface-page: #0d0d0d; --surface-1: #1a1a19;
+      --text-primary: #ffffff; --text-secondary: #c3c2b7; --text-muted: #898781;
+      --border: rgba(255,255,255,0.10); --gridline: #2c2c2a;
+    }
+  }
+  body { font-family: system-ui, sans-serif; margin: 2rem; max-width: 1300px; margin-inline: auto; background: var(--surface-page); color: var(--text-primary); }
+  h1, h2 { color: var(--text-primary); }
+  p { color: var(--text-secondary); }
+  /* The diagram card stays on a fixed light surface even in dark mode:
+     live-recoloring a Mermaid SVG through CSS variables is not reliable
+     across browsers, so a fixed-contrast card is the safe choice. */
+  .diagram { overflow: auto; border: 1px solid rgba(11,11,11,0.10); background: #fcfcfb; border-radius: 8px; padding: 1rem; margin-block: 1.5rem; }
+  /* table-layout:fixed + overflow-wrap are required: without them, a cell
+     holding a long unbroken string (an ID list, say) forces the table past
+     100% and wider than the rest of the document. */
+  table { width: 100%; table-layout: fixed; border-collapse: collapse; margin-block: 1rem; background: var(--surface-1); }
+  th, td { text-align: left; padding: .4rem .6rem; border-bottom: 1px solid var(--gridline); font-size: .9rem; vertical-align: top; color: var(--text-primary); overflow-wrap: anywhere; }
+  th { position: sticky; top: 0; background: var(--surface-1); color: var(--text-secondary); }
+  tr.highlight { outline: 2px solid #2a78d6; }
+  .legend span { display: inline-flex; align-items: center; gap: .3rem; margin-right: 1rem; font-size: .85rem; color: var(--text-secondary); }
+  .dot { width: .7rem; height: .7rem; border-radius: 50%; display: inline-block; }
+  /* Reinforcement for themeVariables below — plus one rule that is NOT
+     optional: Mermaid 11 wraps every label in a <p> inside a foreignObject,
+     so the generic `p` rule above lands on it and paints diagram text in the
+     page's dark-mode secondary ink over a card that stays light. Any selector
+     styling <p> page-wide has to be neutralized inside .mermaid. */
+  .mermaid p { color: #0b0b0b; margin: 0; }
+  .mermaid .edgeLabel { color: #0b0b0b; fill: #0b0b0b; background: #fcfcfb; font-weight: 500; }
+  .mermaid .cluster-label, .mermaid .nodeLabel { color: #0b0b0b; fill: #0b0b0b; font-weight: 500; }
+  .mermaid text { fill: #0b0b0b; }
+  .back-to-diagram {
+    position: fixed; bottom: 1.5rem; right: 1.5rem;
+    background: var(--surface-1); color: var(--text-primary);
+    border: 1px solid var(--border); border-radius: 999px;
+    padding: .55rem 1.1rem; font-size: .85rem; text-decoration: none;
+    box-shadow: 0 2px 10px rgba(0,0,0,.2);
+  }
+</style>
+</head>
+<body>
+  <h1 id="diagram-top">Map of Functions — {{TITLE}}</h1>
+  <p>{{PURPOSE}}</p>
+  <div class="legend">
+    <span><span class="dot" style="background:var(--risk-critical)"></span> high risk</span>
+    <span><span class="dot" style="background:var(--risk-serious)"></span> medium risk</span>
+    <span><span class="dot" style="background:var(--risk-warning)"></span> low risk</span>
+    <span><span class="dot" style="background:var(--text-muted)"></span> no impact rule</span>
+  </div>
+  <a href="#diagram-top" class="back-to-diagram">↑ Diagram</a>
+  <div class="diagram">
+    <pre class="mermaid">
+graph LR
+  classDef default fill:#fcfcfb,stroke:#52514e,stroke-width:1.25px,color:#0b0b0b;
+  classDef highRisk stroke:#d03b3b,stroke-width:3px;
+  classDef mediumRisk stroke:#ec835a,stroke-width:2.5px;
+  linkStyle default stroke:#52514e,stroke-width:1px;
+
+{{MERMAID}}
+    </pre>
+  </div>
+
+  <h2>Impact Rules</h2>
+  <table id="impact-rules">
+    <thead><tr><th>ID</th><th>Trigger</th><th>Change</th><th>Affected direct</th><th>Affected indirect</th><th>Risk</th><th>Recommended actions</th></tr></thead>
+    <tbody>
+{{ROWS_IMPACT}}
+    </tbody>
+  </table>
+
+  <h2>Functions</h2>
+  <table id="functions">
+    <thead><tr><th>ID</th><th>Name</th><th>Domain</th><th>Risk</th><th>Responsibilities</th></tr></thead>
+    <tbody>
+{{ROWS_FUNCTIONS}}
+    </tbody>
+  </table>
+
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      securityLevel: 'loose',
+      theme: 'base',
+      themeVariables: {
+        fontFamily: 'system-ui, sans-serif',
+        primaryColor: '#fcfcfb',
+        primaryTextColor: '#0b0b0b',
+        primaryBorderColor: '#52514e',
+        lineColor: '#52514e',
+        textColor: '#0b0b0b',
+        edgeLabelBackground: '#fcfcfb',
+        clusterBkg: '#fcfcfb',
+        clusterBorder: '#52514e'
+      }
+    });
+    function focusRow(id) {
+      document.querySelectorAll('tr.highlight').forEach(el => el.classList.remove('highlight'));
+      const row = document.getElementById('row-' + id);
+      // 'auto', never 'smooth': smooth-scroll animations depend on frames a
+      // throttled background tab may never deliver, leaving the click dead.
+      if (row) { row.classList.add('highlight'); row.scrollIntoView({ behavior: 'auto', block: 'center' }); }
+    }
+  </script>
+</body>
+</html>
