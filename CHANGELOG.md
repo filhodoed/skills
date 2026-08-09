@@ -4,6 +4,17 @@ All notable changes to this project are documented here. Format follows [Keep a 
 
 ## [Unreleased]
 
+### Changed
+
+- `mof` skill: **`Responsibility` (`RESP_<DOMAIN>_<NNN>`) replaces `Function` as the atomic unit.** A Responsibility is a single verb-object capability with one reason to change; a `Function` now only groups the Responsibilities sharing a `code_ref`, carrying a computed `srp_status: ok | violation` — one Responsibility per Function is healthy, two or more is a Single Responsibility Principle violation, visible without a separate audit step. `relationships[]`, `entities[]`, `events[]`, `workflows[].sequence`, and `impact_rules[].trigger` all key on Responsibility ids now, not Function ids.
+- `mof` skill: **five operating modes collapsed into three** — Map (merges the former Bootstrap and Maintenance modes, since both did the same discover/update work at different scope), Query (unchanged in spirit, now traverses Responsibilities and additionally flags shared-code exposure from `srp_status: violation` siblings), Visualize (absorbs the SOLID checkup — the Functions table's `srp_status` column and each violating Function's dashed-red subgraph border already are the audit; there is no separate report to generate).
+- `skills/mof/visualization.md`: the Mermaid diagram nests Responsibility nodes inside a subgraph per Function; a Function with `srp_status: violation` gets a `⚠` in its subgraph label plus a dashed red border — the label is what keeps it from being mistaken for the existing risk-colored node borders, which reuse the same red.
+- `skills/mof/mof-shell.html`: Functions table gains an SRP column; legend gains the violation swatch.
+
+### Breaking
+
+- Every existing `docs/MOF.md` written against the previous template is out of date: `functions[]` no longer carries `side_effects` or `state` directly (they moved onto the new `responsibilities[]`), and every id-bearing field elsewhere in the document now expects `RESP_` ids in place of `F_` ids. Run Map to decompose existing Functions into Responsibilities before the next Query.
+
 ## [0.4.0] - 2026-08-05
 
 Impact queries got cheaper, and three real bugs came out with them. The document format changed to make that possible.

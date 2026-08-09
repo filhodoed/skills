@@ -1,25 +1,27 @@
 # `docs/MOF.md` document template
 
-Disclosed from Mode A (Bootstrap) and Mode C (Maintenance) of the `mof` skill. Use exactly this structure — YAML blocks keep it readable by humans and parseable by agents.
+Disclosed from Map and consulted by Query of the `mof` skill. Use exactly this structure — YAML blocks keep it readable by humans and parseable by agents.
 
-Every section below has a named consumer in Mode B. Nothing here is decorative; do not add a section without giving it one.
+Every section below has a named consumer in Query. Nothing here is decorative; do not add a section without giving it one.
 
 ## The `impact_index` line format
 
-The index is what Mode B reads instead of the whole document — one line per function, all of it projected from the sections further down. Regenerate a line whenever its source data changes; never edit it as if it were the source.
+The index is what Query reads instead of the whole document — one line per Responsibility, all of it projected from the sections further down. Regenerate a line whenever its source data changes; never edit it as if it were the source.
 
 ```
-F_<ID> | <code_ref> | dom:<DOMAIN> | dep:<upstream ids> | exp:<downstream ids> | ent:<Entity(r|w)> | evt:+<published> -<consumed> | ir:<rule ids>
+RESP_<ID> | fn:F_<ID> | <code_ref> | dom:<DOMAIN> | dep:<upstream ids> | exp:<downstream ids> | ent:<Entity(r|w)> | evt:+<published> -<consumed> | ir:<rule ids> | srp:<ok|violation>
 ```
 
-| Field  | Projected from                          | Read by Mode B          |
-| ------ | --------------------------------------- | ----------------------- |
-| `dom:` | `functions[].domain`                    | step 1 (locate)         |
-| `dep:` | `relationships[]` where `to` = this fn   | step 3 (upstream trace) |
-| `exp:` | `relationships[]` where `from` = this fn | step 3 (radius)         |
-| `ent:` | `entities[].read_by` / `.modified_by`   | step 4 (state fan-out)  |
-| `evt:` | `events[].published_by` / `.consumed_by` | step 4 (state fan-out)  |
-| `ir:`  | `impact_rules[].trigger.function_id`    | step 6 (rules)          |
+| Field  | Projected from                                             | Read by Query                          |
+| ------ | ------------------------------------------------------------ | ---------------------------------------- |
+| `fn:`  | `functions[]` whose `responsibilities[]` contains this id   | step 1 (locate), step 5 (shared-code exposure) |
+| `dom:` | `responsibilities[].domain`                                 | step 1 (locate)                         |
+| `dep:` | `relationships[]` where `to` = this responsibility          | step 3 (upstream trace)                 |
+| `exp:` | `relationships[]` where `from` = this responsibility        | step 3 (radius)                         |
+| `ent:` | `entities[].read_by` / `.modified_by`                       | step 4 (state fan-out)                  |
+| `evt:` | `events[].published_by` / `.consumed_by`                    | step 4 (state fan-out)                  |
+| `ir:`  | `impact_rules[].trigger.responsibility_id`                   | step 7 (rules)                          |
+| `srp:` | `functions[].srp_status` of `fn:`                            | step 5 (shared-code exposure)           |
 
 Use `-` for an empty field. Keep every line on one physical line — the index is grepped, and a wrapped line breaks the match.
 
@@ -30,7 +32,7 @@ Use `-` for an empty field. Keep every line on one physical line — the index i
 
 > Consult this document before creating, modifying, or refactoring code.
 > Start at `impact_index` — it carries the whole blast-radius traversal.
-> Open a function's full block only once it is inside the computed radius.
+> Open a Responsibility's full block only once it is inside the computed radius.
 
 ## Metadata
 
@@ -39,7 +41,7 @@ mof_meta:
   system_name: "<NAME>"
   purpose: "<1-2 sentences>"
   version: "0.1.0"
-  last_updated: "YYYY-MM-DD" # Mode B step 2 trusts this; Mode C must update it
+  last_updated: "YYYY-MM-DD" # Query step 2 trusts this; Map must update it
   domains: ["<DOMAIN_1>", "<DOMAIN_2>"] # order fixes the diagram's color slots
 ```
 
@@ -49,23 +51,20 @@ mof_meta:
 # Derived projection — regenerate from the sections below, never hand-edit alone.
 # Format and field sources: see mof-template.md § The impact_index line format.
 impact_index:
-  - "F_BILLING_003 | src/billing/approve.py:approve_invoice | dom:BILLING | dep:F_BILLING_001 | exp:F_API_007,F_WORKER_002 | ent:Invoice(w),Customer(r) | evt:+EVT_004 -EVT_002 | ir:IR_004"
+  - "RESP_BILLING_004 | fn:F_BILLING_003 | src/billing/approve.py:approve_invoice | dom:BILLING | dep:RESP_BILLING_001 | exp:RESP_API_007,RESP_WORKER_002 | ent:Invoice(w),Customer(r) | evt:+EVT_004 -EVT_002 | ir:IR_004 | srp:violation"
 ```
 
-## Functions
+## Responsibilities
 
 ```yaml
-functions:
-  - id: "F_<DOMAIN>_<NNN>"
-    name: "<Business capability, e.g. Approve Invoice>"
+responsibilities:
+  - id: "RESP_<DOMAIN>_<NNN>"
+    name: "<VERB + OBJECT, one reason to change, e.g. Authorize invoice approval>"
     domain: "<DOMAIN>"
     status: "unverified | verified"
-    responsibilities:
-      - "<VERB + OBJECT: what it does>"
     non_responsibilities:
-      - "<What it explicitly does NOT do. E.g. validates the cart, but does NOT calculate shipping>"
+      - "<What it explicitly does NOT do. E.g. authorizes the approval, but does NOT send the notification>"
     interfaces:
-      code_ref: "<real file/class/method, e.g. src/billing/approve.py:approve_invoice>"
       inputs:
         - "<param>: <type> — <description>"
       outputs:
@@ -77,43 +76,59 @@ functions:
     notes: ["<constraints, assumptions>"]
 ```
 
-Edges are not repeated here — they live in `relationships[]` and reach Mode B through `impact_index`. Events are not repeated here either; `events[]` owns them.
+Edges are not repeated here — they live in `relationships[]` and reach Query through `impact_index`. Events are not repeated here either; `events[]` owns them.
+
+## Functions
+
+```yaml
+# Derived grouping — regenerate domain and srp_status from responsibilities[]
+# below, never hand-edit either alone. domain must equal the domain shared by
+# every listed Responsibility; if they disagree, the code artifact spans two
+# domains and that disagreement belongs in open_questions, not a silent pick.
+functions:
+  - id: "F_<DOMAIN>_<NNN>"
+    name: "<short label for the code artifact, e.g. approve_invoice>"
+    domain: "<DOMAIN>"
+    code_ref: "<real file/class/method, e.g. src/billing/approve.py:approve_invoice>"
+    responsibilities: ["RESP_<ID>"] # one entry = srp_status ok, two or more = violation
+    srp_status: "ok | violation"
+```
 
 ## Entities
 
 ```yaml
-# Mode B step 4 reads this: a writer's behavior change breaks its readers
+# Query step 4 reads this: a writer's behavior change breaks its readers
 # even with no call edge between them.
 entities:
   - name: "<Entity, e.g. Invoice>"
     owner_domain: "<DOMAIN>"
-    read_by: ["F_<ID>"]
-    modified_by: ["F_<ID>"]
+    read_by: ["RESP_<ID>"]
+    modified_by: ["RESP_<ID>"]
 ```
 
 ## Events
 
 ```yaml
 # Events are facts in the past: "Invoice Approved", never "Approve Invoice".
-# Mode B step 4 reads consumed_by: loose coupling still transmits breakage.
+# Query step 4 reads consumed_by: loose coupling still transmits breakage.
 events:
   - id: "EVT_<NNN>"
     name: "<Fact that happened>"
-    published_by: ["F_<ID>"]
-    consumed_by: ["F_<ID>"]
+    published_by: ["RESP_<ID>"]
+    consumed_by: ["RESP_<ID>"]
 ```
 
 ## Workflows
 
 ```yaml
-# Mode B step 5 reads this: a change can be locally correct and still
-# break the end-to-end contract of a flow the function participates in.
+# Query step 6 reads this: a change can be locally correct and still
+# break the end-to-end contract of a flow the Responsibility participates in.
 workflows:
   - id: "W_<NNN>"
     name: "<Flow name>"
-    starts_at: "F_<ID>"
-    ends_at: "F_<ID>"
-    sequence: ["F_<ID>", "F_<ID>", "F_<ID>"]
+    starts_at: "RESP_<ID>"
+    ends_at: "RESP_<ID>"
+    sequence: ["RESP_<ID>", "RESP_<ID>", "RESP_<ID>"]
 ```
 
 ## Relationships
@@ -122,8 +137,8 @@ workflows:
 # Source of truth for every edge. impact_index projects dep:/exp: from here.
 relationships:
   - id: "R_<NNN>"
-    from: "F_<SOURCE_ID>"
-    to: "F_<TARGET_ID>"
+    from: "RESP_<SOURCE_ID>"
+    to: "RESP_<TARGET_ID>"
     type: "calls | publishes | subscribes | reads_from | writes_to"
     coupling: "tight | loose"
     channel: "HTTP | RPC | Message Queue | Shared Database | File"
@@ -137,10 +152,10 @@ relationships:
 impact_rules:
   - id: "IR_<NNN>"
     trigger:
-      function_id: "F_<ID>"
+      responsibility_id: "RESP_<ID>"
       change: "<signature | behavior | contract | business rule>"
-    affected_direct: ["F_<ID>"]
-    affected_indirect: ["F_<ID>"]
+    affected_direct: ["RESP_<ID>"]
+    affected_indirect: ["RESP_<ID>"]
     impact_type: "breaking | non_breaking | behavioral"
     risk: "high | medium | low"
     recommended_actions:
@@ -150,12 +165,12 @@ impact_rules:
 ## Cross-Cutting Rules
 
 ```yaml
-# Mode B step 7 reads this. Scope each rule to the functions it binds,
+# Query step 8 reads this. Scope each rule to the Responsibilities it binds,
 # so a query can tell which apply without reading the prose.
 cross_cutting:
-  - rule: "<e.g. every write function requires an admin token>"
+  - rule: "<e.g. every write Responsibility requires an admin token>"
     kind: "auth | transaction | error_handling | retry"
-    applies_to: ["F_<ID>"] # or "<DOMAIN>" for a whole domain
+    applies_to: ["RESP_<ID>"] # or "<DOMAIN>" for a whole domain
 ```
 
 ## Open Questions
@@ -165,7 +180,7 @@ cross_cutting:
 # permanent inventory section.
 open_questions:
   - question: "<doubt the code doesn't answer>"
-    context: "related F_<ID> or W_<ID>"
+    context: "related RESP_<ID>, F_<ID> or W_<ID>"
 ```
 
 ## Revision History
