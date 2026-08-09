@@ -2,26 +2,27 @@
 
 Before changing a function, know exactly **who depends on it and what can break**.
 
-The MoF is a living `docs/MOF.md` file that models a system's functions as business capabilities — their responsibilities, relationships, side effects, and impact rules — so humans and AI agents can plan changes with full context instead of guessing. Think of it as a dependency map with a blast-radius calculator built in. It is not a navigation map (e.g. a `docs/MOC.md`) — the two stay decoupled.
+The MoF is a living `docs/MOF.md` file that models a system's functions as business capabilities — their responsibilities, relationships, side effects, and impact rules — so humans and AI agents can plan changes with full context instead of guessing. Think of it as a dependency map with a blast-radius calculator, and a Single Responsibility Principle checkup, both built in. It is not a navigation map (e.g. a `docs/MOC.md`) — the two stay decoupled.
 
 ## How it works
 
-The skill moves through four modes, picked automatically based on what you're asking for:
+Every function is decomposed into its `Responsibility`s — atomic units, one reason to change each. A `Function` just groups the Responsibilities that share one code artifact: one Responsibility means the code is clean, two or more means it's carrying more than one reason to change, and that's flagged automatically, no separate lint step.
+
+The skill moves through three modes, picked automatically based on what you're asking for:
 
 | Mode | When | What it does |
 | --- | --- | --- |
-| **A — Bootstrap** | Project has no MoF, or it's stale | Incremental discovery: inventory → domains → functions → relationships → entities/events → impact rules, validating with you each cycle. Ends by generating the Impact Index. Past ~800 lines the map splits by domain — but the index stays whole in `docs/MOF.md`. |
-| **B — Impact query** | You're about to change code that touches logic, contracts, or behavior | Reads the Impact Index alone, locates the functions you're touching, freshness-checks only *their* files against git, then traverses the graph to depth 2 (deeper only along critical edges). Fans out through shared entities and events — impact paths a call graph can't see — checks affected workflows, impact rules, and cross-cutting rules, and only then opens the full detail of the functions actually in radius. Cosmetic changes skip straight to the edit. |
-| **C — Maintenance** | A change just landed | Updates the affected functions, relationships, entities/events, and impact rules; regenerates the touched index lines; bumps `last_updated`; logs a Revision History entry with the commit — so the map never rots. |
-| **D — Visualization** | You ask to see the MoF as a diagram | Fills a fixed page shell into `docs/MOF.html`: a Mermaid graph grouped by domain (each domain gets its own color), function nodes colored by risk where an impact rule triggers on them, and two reference tables (Impact Rules, Functions) underneath. Click a node to jump to its table row; a fixed "↑ Diagram" button brings you back. Opens automatically in your browser when it's done. |
+| **Map** | No MoF, it's stale, or a change just landed | Incremental discovery: inventory → domains → responsibilities → functions (grouped by code artifact, with a computed SRP status) → relationships → entities/events → impact rules, validating with you each cycle. After a landed change, the same cycle runs scoped to what it touched. Ends by regenerating the Impact Index. Past ~800 lines the map splits by domain — but the index stays whole in `docs/MOF.md`. |
+| **Query** | You're about to change code that touches logic, contracts, or behavior | Reads the Impact Index alone, locates the responsibilities you're touching, freshness-checks only *their* files against git, then traverses the graph to depth 2 (deeper only along critical edges). Fans out through shared entities and events, and through Functions flagged as SRP violations — impact paths a call graph can't see — checks affected workflows, impact rules, and cross-cutting rules, and only then opens the full detail of the responsibilities actually in radius. Cosmetic changes skip straight to the edit. |
+| **Visualize** | You ask to see the MoF as a diagram, or for an SRP checkup | Fills a fixed page shell into `docs/MOF.html`: a Mermaid graph grouped by domain, each Function as a subgraph holding its Responsibility nodes — a Function carrying more than one Responsibility gets a dashed red border — plus two reference tables (Impact Rules, Functions with their SRP status) underneath. Click a node to jump to its table row; a fixed "↑ Diagram" button brings you back. Opens automatically in your browser when it's done. |
 
-Every item gets a collision-safe ID: functions use `F_<DOMAIN>_<NNN>` (e.g. `F_BILLING_003`) so two sessions mapping different domains never collide; everything else uses a simple `<PREFIX>_<NNN>` — always the next free number, never reused.
+Every item gets a collision-safe ID: Responsibilities use `RESP_<DOMAIN>_<NNN>` and Functions use `F_<DOMAIN>_<NNN>` (e.g. `F_BILLING_003`) so two sessions mapping different domains never collide; everything else uses a simple `<PREFIX>_<NNN>` — always the next free number, never reused.
 
 ### Why the Impact Index exists
 
-A blast-radius query needs a small slice of what a MoF knows: who calls whom, which entities and events a function touches, which rules fire. It does not need every function's full prose. So the map carries a one-line-per-function index at the top, projected from the sections below it, and Mode B reads *only that* — descending into a function's full block once that function is already in radius. On a 40-function map that's ~40 lines read instead of ~1000.
+A blast-radius query needs a small slice of what a MoF knows: who calls whom, which entities and events a responsibility touches, which rules fire, whether its function carries other responsibilities too. It does not need every responsibility's full prose. So the map carries a one-line-per-responsibility index at the top, projected from the sections below it, and Query reads *only that* — descending into a responsibility's full block once it's already in radius. On a 40-responsibility map that's ~40 lines read instead of ~1000.
 
-`relationships[]` stays the source of truth for every edge; the index is a derived projection, regenerated by Mode C, never hand-edited on its own.
+`relationships[]` stays the source of truth for every edge; the index is a derived projection, regenerated by Map, never hand-edited on its own.
 
 ## Example prompts
 
@@ -30,6 +31,7 @@ A blast-radius query needs a small slice of what a MoF knows: who calls whom, wh
 - "Assess the blast radius of renaming this endpoint"
 - "Update the MOF.md after this refactor"
 - "Show me the MoF as a diagram"
+- "Check this codebase for Single Responsibility violations"
 
 ## Make it fire automatically
 

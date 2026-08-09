@@ -1,6 +1,6 @@
-# Mode D — Visualization
+# Visualize
 
-Disclosed from Mode D of the `mof` skill. Produces `docs/MOF.html` next to `docs/MOF.md`. If the MoF is split by domain (see § When to split by domain in `SKILL.md`), aggregate every `docs/mof/<domain>.md` into a single HTML — never one HTML per domain.
+Disclosed from Visualize in the `mof` skill. Produces `docs/MOF.html` next to `docs/MOF.md`. If the MoF is split by domain (see § When to split by domain in `SKILL.md`), aggregate every `docs/mof/<domain>.md` into a single HTML — never one HTML per domain.
 
 There is no parser: you already read the MoF's YAML, so you write the Mermaid body and table rows directly from what you read.
 
@@ -8,28 +8,29 @@ There is no parser: you already read the MoF's YAML, so you write the Mermaid bo
 
 The page shell lives in [`mof-shell.html`](mof-shell.html). **Copy that file to `docs/MOF.html` and replace its five markers.** Do not retype the shell, do not restyle it per project, and do not inline your own CSS — the shell's choices (fixed light diagram card, `themeVariables` over page CSS, `table-layout: fixed`, instant scrolling) each fix a real failure and are documented at the point of use inside it.
 
-| Marker              | Replace with                                                        |
-| ------------------- | ------------------------------------------------------------------- |
-| `{{TITLE}}`         | `mof_meta.system_name` (appears twice — `<title>` and `<h1>`)       |
-| `{{PURPOSE}}`       | `mof_meta.purpose`                                                  |
-| `{{MERMAID}}`       | the graph body built by the rules below                             |
-| `{{ROWS_IMPACT}}`   | one `<tr>` per `impact_rules[]`, ordered by risk descending          |
-| `{{ROWS_FUNCTIONS}}`| one `<tr id="row-F_ID">` per `functions[]`                          |
+| Marker               | Replace with                                                              |
+| --------------------- | -------------------------------------------------------------------------- |
+| `{{TITLE}}`          | `mof_meta.system_name` (appears twice — `<title>` and `<h1>`)             |
+| `{{PURPOSE}}`        | `mof_meta.purpose`                                                        |
+| `{{MERMAID}}`        | the graph body built by the rules below                                  |
+| `{{ROWS_IMPACT}}`    | one `<tr>` per `impact_rules[]`, ordered by risk descending               |
+| `{{ROWS_FUNCTIONS}}` | one `<tr id="row-F_ID">` per `functions[]`, `srp_status: violation` first |
 
-The shell already carries `graph LR`, the `classDef` lines, and `linkStyle default` — `{{MERMAID}}` is only the body: subgraphs with their nodes, then the `class` assignments, then the `style` lines, then the `click` handlers.
+The shell already carries `graph LR`, the `classDef` lines, and `linkStyle default` — `{{MERMAID}}` is only the body: subgraphs with their nested subgraphs and nodes, then the `class` assignments, then the `style` lines, then the `click` handlers.
 
-**Row shapes.** Functions table: ID, name, domain, risk, responsibilities joined with `"; "`. Risk cell is `<span class="dot" style="background:var(--risk-critical|--risk-serious|--risk-warning|--text-muted)"></span>` plus the word `high|medium|low|—`, taken from the highest `risk` among the `impact_rules[]` whose `trigger.function_id` is this function (none → `—`). Status never appears as color alone — the word always sits beside the dot, in tables and in the legend.
+**Row shapes.** Functions table: ID, name, domain, SRP, risk, responsibilities joined with `"; "` (each Responsibility's `name`). SRP cell is `<span class="dot violation"></span> violation` when `srp_status: violation`, or the plain word `ok` when not — the dashed-square swatch defined in the shell, never a plain color alone. Risk cell is `<span class="dot" style="background:var(--risk-critical|--risk-serious|--risk-warning|--text-muted)"></span>` plus the word `high|medium|low|—`, taken from the highest `risk` among the `impact_rules[]` whose `trigger.responsibility_id` names one of this Function's Responsibilities (none → `—`). A status never appears as color alone — the word always sits beside the dot, in tables and in the legend.
 
 **Pinned dependency.** The shell loads Mermaid from jsDelivr at an exact version, not a floating major. Keep it pinned: a floating `@11` means a future Mermaid release can silently change every already-generated `MOF.html`. The page therefore needs network access on first load — that is the one external dependency, and it is deliberate: vendoring ~3 MB of JavaScript into a skills repo would tax every install to serve the offline case.
 
 ## YAML → diagram translation rules
 
-1. **Domains → `subgraph`.** One `subgraph D<N>["<domain>"]` per unique `functions[].domain`, where `N` is the domain's position in `mof_meta.domains` (1-based, stable order). Tint each subgraph with the categorical slot matching its position — see § Palette. Past 8 domains, the extras get no tint (just the subgraph, no `style`) — the categorical palette covers 8 slots; do not invent a 9th color.
-2. **Functions → nodes.** One node per function inside its domain's subgraph: `F_ID["<name>"]`. Never invent a function that is not in the MoF.
-3. **Relationships → edges.** For each `relationships[]`: `from -->|type| to` when `coupling: tight`, `from -.->|type| to` when `coupling: loose`. The edge label is the `type` (calls, publishes, …); `channel` and `criticality` stay out of the diagram — it would clutter, and anyone needing that detail reads `docs/MOF.md`.
-4. **Impact rules → trigger node color.** For each `impact_rules[]`, emit `class <trigger.function_id> highRisk` when `risk: high`, `class <trigger.function_id> mediumRisk` when `risk: medium`. `risk: low` and functions with no impact rule get no class (the node's default style). A node is colored by the risk of changing it — the blast radius is already visible in the edges, so don't duplicate it in color.
-5. **Click → scroll.** For each function, emit `click F_ID call focusRow("F_ID")`; `focusRow` is defined in the shell and scrolls to and highlights the matching Functions row.
-6. **Large graphs** scroll inside the diagram's `overflow: auto` container — do not try to fit everything on screen.
+1. **Domains → outer `subgraph`.** One `subgraph D<N>["<domain>"]` per unique `functions[].domain`, where `N` is the domain's position in `mof_meta.domains` (1-based, stable order). Tint each subgraph with the categorical slot matching its position — see § Palette. Past 8 domains, the extras get no tint (just the subgraph, no `style`) — the categorical palette covers 8 slots; do not invent a 9th color.
+2. **Functions → nested `subgraph`.** Inside its domain's subgraph, one `subgraph F_ID["<name>"]` per function, or `subgraph F_ID["⚠ <name>"]` when `srp_status: violation`. The `⚠` in the label is the real signal — it also gets `style F_ID stroke:#d03b3b,stroke-width:2px,stroke-dasharray:4 2`, but that reuses the same red as a high-risk node's solid border (rule 5), so a violating function wrapping a high-risk responsibility would render red at two nested levels with nothing but the dash pattern telling them apart. The label mark is what actually keeps SRP and risk from being mistaken for each other, consistent with never letting a status ride on color alone. Never invent a function that is not in the MoF.
+3. **Responsibilities → nodes.** One node per Responsibility, inside its Function's nested subgraph: `RESP_ID["<name>"]`.
+4. **Relationships → edges.** For each `relationships[]`: `from -->|type| to` when `coupling: tight`, `from -.->|type| to` when `coupling: loose`, both between Responsibility ids. The edge label is the `type` (calls, publishes, …); `channel` and `criticality` stay out of the diagram — it would clutter, and anyone needing that detail reads `docs/MOF.md`.
+5. **Impact rules → trigger node color.** For each `impact_rules[]`, emit `class <trigger.responsibility_id> highRisk` when `risk: high`, `class <trigger.responsibility_id> mediumRisk` when `risk: medium`. `risk: low` and Responsibilities with no impact rule get no class (the node's default style). A node is colored by the risk of changing it — the blast radius is already visible in the edges, so don't duplicate it in color.
+6. **Click → scroll.** For each function, emit `click F_ID call focusRow("F_ID")` on the subgraph; `focusRow` is defined in the shell and scrolls to and highlights the matching Functions row. Responsibility nodes are not individually clickable — the Function they belong to is the addressable row.
+7. **Large graphs** scroll inside the diagram's `overflow: auto` container — do not try to fit everything on screen.
 
 ## Palette
 
@@ -48,7 +49,7 @@ Domain = identity → categorical palette, first slots in fixed order (never cyc
 | 7   | violet  | `#4a3aa7` | `#9085e9` |
 | 8   | red     | `#e34948` | `#e66767` |
 
-Risk = state → status palette (same hex in both modes): high = critical `#d03b3b`, medium = serious `#ec835a`, low = warning `#fab219`.
+Risk = state → status palette (same hex in both modes): high = critical `#d03b3b`, medium = serious `#ec835a`, low = warning `#fab219`. SRP violation reuses critical red (`#d03b3b`) as a dashed stroke on the Function subgraph, never as a node fill — but the `⚠` in the subgraph's label (rule 2) is what actually distinguishes it from risk, since the two do render the same red at nested levels when a violating function wraps a high-risk responsibility.
 
 **Every `classDef` / `style` / `linkStyle` in the Mermaid body uses literal light-mode hex, never `var(--...)`** — the diagram card is a fixed light surface, so CSS variables there would resolve against the wrong theme.
 
