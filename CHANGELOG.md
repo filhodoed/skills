@@ -4,6 +4,8 @@ All notable changes to this project are documented here. Format follows [Keep a 
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-08-08
+
 ### Changed
 
 - `mof` skill: **`Responsibility` (`RESP_<DOMAIN>_<NNN>`) replaces `Function` as the atomic unit.** A Responsibility is a single verb-object capability with one reason to change; a `Function` now only groups the Responsibilities sharing a `code_ref`, carrying a computed `srp_status: ok | violation` — one Responsibility per Function is healthy, two or more is a Single Responsibility Principle violation, visible without a separate audit step. `relationships[]`, `entities[]`, `events[]`, `workflows[].sequence`, and `impact_rules[].trigger` all key on Responsibility ids now, not Function ids.
