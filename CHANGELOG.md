@@ -9,6 +9,8 @@ All notable changes to this project are documented here. Format follows [Keep a 
 - `mof`: generated reports now occupy the viewport, preserve filter and status chips on one line, and filter repeated files from explicit function `code_ref` values.
 - `mof`: relationship search now composes with active filters, while relation, function, and impact filters inspect only their respective table columns.
 - `mof`: status badges now use rounded chip styling.
+- `mof`: repeated-file filtering now normalizes class, method, and line suffixes to the physical file path.
+- `mof`: relationship result changes now announce their count, searches debounce, and table headers declare their scope.
 
 ### Changed
 
