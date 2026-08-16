@@ -99,23 +99,23 @@ The MoF core is useful across agents, but its freshness rules are date-based and
 
 | Requirement ID | Story | Phase | Status |
 | --- | --- | --- | --- |
-| MOF-01 | P1: Reliable freshness and Query radius | Core | Verified in `68c3dbe` |
-| MOF-02 | P1: Reliable freshness and Query radius | Core | Verified in `68c3dbe` |
-| MOF-03 | P1: Reliable freshness and Query radius | Core | Verified in `68c3dbe` |
-| MOF-04 | P1: Reliable freshness and Query radius | Core | Verified in T3 |
-| MOF-05 | P1: Reliable freshness and Query radius | Core | Verified in `68c3dbe` |
-| MOF-06 | P1: Consistent split-map maintenance | Core | Verified in T2 |
-| MOF-07 | P1: Consistent split-map maintenance | Core | Verified in T2 |
-| MOF-08 | P1: Consistent split-map maintenance | Core | Verified in T2 |
-| MOF-09 | P1: Dependency-free technical HTML report | Visual | Verified in T4 |
-| MOF-10 | P1: Dependency-free technical HTML report | Visual | Verified in T4 |
-| MOF-11 | P1: Dependency-free technical HTML report | Visual | Verified in T4 |
-| MOF-12 | P1: Dependency-free technical HTML report | Visual | Verified in T4 |
-| MOF-13 | P1: Dependency-free technical HTML report | Visual | Verified in T4 |
-| MOF-14 | P1: Dependency-free technical HTML report | Visual | Verified in T5 |
-| MOF-15 | P2: Multi-agent documentation | Docs | Verified in T6 |
-| MOF-16 | P2: Multi-agent documentation | Docs | Verified in T6 |
-| MOF-17 | P2: Multi-agent documentation | Docs | Verified in T6 |
+| MOF-01 | P1: Reliable freshness and Query radius | Core | Verified |
+| MOF-02 | P1: Reliable freshness and Query radius | Core | Verified |
+| MOF-03 | P1: Reliable freshness and Query radius | Core | Verified |
+| MOF-04 | P1: Reliable freshness and Query radius | Core | Verified |
+| MOF-05 | P1: Reliable freshness and Query radius | Core | Verified |
+| MOF-06 | P1: Consistent split-map maintenance | Core | Verified |
+| MOF-07 | P1: Consistent split-map maintenance | Core | Verified |
+| MOF-08 | P1: Consistent split-map maintenance | Core | Verified |
+| MOF-09 | P1: Dependency-free technical HTML report | Visual | Verified |
+| MOF-10 | P1: Dependency-free technical HTML report | Visual | Verified |
+| MOF-11 | P1: Dependency-free technical HTML report | Visual | Verified |
+| MOF-12 | P1: Dependency-free technical HTML report | Visual | Verified |
+| MOF-13 | P1: Dependency-free technical HTML report | Visual | Verified |
+| MOF-14 | P1: Dependency-free technical HTML report | Visual | Verified |
+| MOF-15 | P2: Multi-agent documentation | Docs | Verified |
+| MOF-16 | P2: Multi-agent documentation | Docs | Verified |
+| MOF-17 | P2: Multi-agent documentation | Docs | Verified |
 
 **Coverage:** 17 total, 0 mapped to tasks, 17 unmapped pending task creation.
 

@@ -128,6 +128,12 @@ T1 → T2 → T3 → T4 → T5 → T6 → T7
 **Tests**: Full targeted validation and `git diff --check`.
 **Gate**: Build
 
+**Status**: Done — commit pending
+
+## Closeout
+
+All requirements are implemented in the current task sequence; the final validation report is pending the independent closeout check.
+
 ## Dependency Cross-Check
 
 | Task | Declared dependency | Diagram match |

@@ -4,7 +4,7 @@
     "name": "Edson Junior",
     "url": "https://github.com/filhodoed"
   },
-  "description": "Edson Junior's public skills for Claude Code.",
+  "description": "Edson Junior's public Agent Skills, with a Claude Code plugin package.",
   "plugins": [
     {
       "name": "filhodoed-skills",
