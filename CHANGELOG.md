@@ -4,6 +4,8 @@ All notable changes to this project are documented here. Format follows [Keep a 
 
 ## [Unreleased]
 
+## [0.7.1] - 2026-08-16
+
 ### Fixed
 
 - `mof`: generated reports now occupy the viewport, preserve filter and status chips on one line, and filter repeated files from explicit function `code_ref` values.
