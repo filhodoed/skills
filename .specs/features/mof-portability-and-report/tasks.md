@@ -73,6 +73,8 @@ T1 → T2 → T3 → T4 → T5 → T6 → T7
 **Tests**: Targeted structural assertions for split-map rules and no-duplication rule.
 **Gate**: Quick
 
+**Status**: Done — commit pending
+
 ### T3: Add deterministic Query evidence rules
 
 **What**: Make the Query response contract explicitly report evidence paths, traversal depth, unresolved identifiers, and uncertainty.

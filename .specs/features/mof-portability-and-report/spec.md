@@ -104,9 +104,9 @@ The MoF core is useful across agents, but its freshness rules are date-based and
 | MOF-03 | P1: Reliable freshness and Query radius | Core | Verified in `68c3dbe` |
 | MOF-04 | P1: Reliable freshness and Query radius | Core | Pending |
 | MOF-05 | P1: Reliable freshness and Query radius | Core | Verified in `68c3dbe` |
-| MOF-06 | P1: Consistent split-map maintenance | Core | Pending |
-| MOF-07 | P1: Consistent split-map maintenance | Core | Pending |
-| MOF-08 | P1: Consistent split-map maintenance | Core | Pending |
+| MOF-06 | P1: Consistent split-map maintenance | Core | Verified in T2 |
+| MOF-07 | P1: Consistent split-map maintenance | Core | Verified in T2 |
+| MOF-08 | P1: Consistent split-map maintenance | Core | Verified in T2 |
 | MOF-09 | P1: Dependency-free technical HTML report | Visual | Pending |
 | MOF-10 | P1: Dependency-free technical HTML report | Visual | Pending |
 | MOF-11 | P1: Dependency-free technical HTML report | Visual | Pending |

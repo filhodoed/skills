@@ -47,6 +47,8 @@ mof_meta:
   domains: ["<DOMAIN_1>", "<DOMAIN_2>"] # stable display order
 ```
 
+When the map is split, this root file is the global source for the complete `impact_index`, cross-domain relationships and impact rules, cross-cutting rules, open questions, and revision history. Domain files own their local Responsibilities, Functions, Entities, Events, and intra-domain Relationships. A Responsibility must appear in exactly one file.
+
 ## Impact Index
 
 ```yaml

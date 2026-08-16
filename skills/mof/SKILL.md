@@ -63,13 +63,15 @@ Every **Workflow** must answer: which Responsibilities compose it; where it star
 
 ### When to split by domain
 
-A single `docs/MOF.md` is the default. Past ~800 lines, split by domain: `docs/mof/<domain>.md` holds that domain's Responsibilities, Functions, Entities, Events, and intra-domain Relationships; `docs/MOF.md` becomes an index — Metadata, a domain table linking to each file, cross-domain Relationships and Impact Rules, Cross-Cutting Rules, Open Questions, Revision History.
+A single `docs/MOF.md` is the default. Past ~800 lines, split by domain: `docs/mof/<domain>.md` holds that domain's Responsibilities, Functions, Entities, Events, and intra-domain Relationships; `docs/MOF.md` remains the global source for Metadata, the complete `impact_index`, a domain table linking to each file, cross-domain Relationships and Impact Rules, Cross-Cutting Rules, Open Questions, and Revision History.
 
 **`impact_index` never splits.** It stays whole in `docs/MOF.md` covering every domain, so a cross-domain traversal still costs one file read. Never duplicate a Responsibility across two files.
 
+When a split map changes, update the owning domain file and the root `docs/MOF.md` in the same change. Keep domain-local responsibilities, functions, entities, events, and relationships in their domain file; keep cross-domain edges and global projections in the root file. A Responsibility has one home only, and the root index must be regenerated from all domain files after every structural change.
+
 ### After a change lands
 
-Update in `docs/MOF.md`:
+Update the owning domain file and the root `docs/MOF.md` when the map is split, or only `docs/MOF.md` when it is not split:
 
 - Affected Responsibilities (their description, interfaces, side effects, state), and the `srp_status` of any Function whose Responsibility count changed
 - `relationships[]` created, changed, or removed
