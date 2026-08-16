@@ -31,6 +31,17 @@ The relationship table is the primary technical view. It must show source domain
 - Keep `docs/MOF.md` as the source of truth and regenerate the report when the map changes.
 - Empty collections render an explicit `—` or `No items recorded` row.
 
+## Generation validation
+
+After writing `docs/MOF.html`, verify that the generated file contains the current shell contract before presenting it to the professional:
+
+- `id="function-filters"`, `id="relationship-filters"`, and `id="impact-filters"`;
+- `class="legend"` and the abbreviation entries `SRP`, `F_`, `RESP_`, and `IR_`;
+- the responsive media rules, including `max-width:700px` and the stacked-card selectors;
+- no unresolved `{{...}}` markers remain.
+
+If any check fails, the report was not regenerated from the current `mof-shell.html`; regenerate it before reporting success.
+
 ## Human-oriented behavior
 
 The report is optimized for quick technical consultation, local search, filter chips, responsive viewport use, and printing to PDF. The Functions table supports risk, SRP, repeated-file, and domain filters; the Relationships table supports domain, direction, coupling, channel, and criticality filters; the Impact Rules table supports risk, impact type, and domain filters. Tables wrap on medium viewports and become labeled stacked cards on narrow viewports, while the footer explains the MoF abbreviations used in the report. It is not part of the agent's Query flow and does not replace the Impact Index.
