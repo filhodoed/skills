@@ -33,4 +33,4 @@ The relationship table is the primary technical view. It must show source domain
 
 ## Human-oriented behavior
 
-The report is optimized for quick technical consultation, local search, and printing to PDF. It is not part of the agent's Query flow and does not replace the Impact Index.
+The report is optimized for quick technical consultation, local search, filter chips, responsive viewport use, and printing to PDF. The Functions table supports risk, SRP, repeated-file, and domain filters; the Relationships table supports domain, direction, coupling, channel, and criticality filters; the Impact Rules table supports risk, impact type, and domain filters. Tables wrap on medium viewports and become labeled stacked cards on narrow viewports, while the footer explains the MoF abbreviations used in the report. It is not part of the agent's Query flow and does not replace the Impact Index.
