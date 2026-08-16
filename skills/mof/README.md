@@ -120,7 +120,7 @@ Use `CLAUDE.md` for Claude Code, `AGENTS.md` for Codex, and the project instruct
 - domains, functions, responsibilities, and SRP status;
 - technical relationships with source domain, destination domain, relation, coupling, channel, criticality, and details;
 - impact rules and open questions;
-- local relationship search and print-friendly CSS.
+- local relationship search, responsive viewport layouts, abbreviation legend, and print-friendly CSS.
 
 The report uses only HTML, CSS, and small local JavaScript. It does not require a database, server, Mermaid, CDN, or network access. `docs/MOF.md` remains the only source of truth.
 
