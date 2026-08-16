@@ -7,7 +7,7 @@ description: Map of Functions (MoF) — a living map of a system's functions, de
 
 The MoF is a structured knowledge base that models a system's functions, their responsibilities, relationships, and impact rules, so humans and AI agents can plan and execute changes with safety and context. The central goal: before changing a function, know exactly **who depends on it and what can break**.
 
-The artifact produced and maintained by this skill is `docs/MOF.md` at the project root (create `docs/` if it doesn't exist). If the project has a `CLAUDE.md`, add a line referencing the MoF as mandatory reading before structural changes — that line, not this description, is what reliably makes the map get consulted.
+The artifact produced and maintained by this skill is `docs/MOF.md` at the project root (create `docs/` if it doesn't exist). If the project has an instruction file such as `CLAUDE.md` or `AGENTS.md`, add a line referencing the MoF as mandatory reading before structural changes — that line, not this description, is what reliably makes the map get consulted.
 
 Don't confuse it with a navigation map (e.g. a `docs/MOC.md`, Map of Content): the MoF documents technical blast radius between functions; a navigation map documents project navigation. Keep the two decoupled — never merge one's content into the other.
 
@@ -76,7 +76,7 @@ Update in `docs/MOF.md`:
 - `entities[]` / `events[]` where the change altered who reads, writes, publishes, or consumes
 - Impact rules the change invalidated or created
 - **`impact_index` lines for every touched Responsibility**, regenerated from the sections above
-- **`mof_meta.last_updated`**, and `version` when the change is structural — Query step 2 reads `last_updated`, so leaving it stale makes every future query distrust a current map
+- **`mof_meta.last_updated`** and **`mof_meta.last_commit`**, and `version` when the change is structural — Query step 2 uses both commit and timestamp evidence, so leaving either stale makes the map untrusted
 - Revision history (version, date, commit, summary)
 
 The MoF is stale when it no longer reflects the system's behavior. Stale documentation is worse than none: it leads the agent to incorrect assumptions.
@@ -87,10 +87,10 @@ The MoF is stale when it no longer reflects the system's behavior. Stale documen
 
 Mandatory before proposing any code change that touches logic, contracts, or behavior. Purely cosmetic changes (typos, formatting, comments, doc text) skip straight to the edit.
 
-**Read `impact_index` and nothing else to start.** It carries every field this flow needs. Do not load the whole `docs/MOF.md`, and do not open any Responsibility's full block until it is already in the computed radius. This is the flow, not a size-dependent optimization.
+**Read `mof_meta` and `impact_index` first, then nothing else.** They carry the freshness and traversal fields this flow needs. Do not load the whole `docs/MOF.md`, and do not open any Responsibility's full block until it is already in the computed radius. This is the flow, not a size-dependent optimization.
 
 1. **Locate the seeds.** Grep `impact_index` for the task's subject: capability name, `code_ref` path, or domain. A `Function` id resolves to every Responsibility it groups.
-2. **Check freshness, scoped to the seeds.** With the seeds' `code_ref` paths known, run `git log -1 --format=%ad -- <those paths>` against `mof_meta.last_updated`. Run a mini Map cycle only for a seed whose code moved after the MoF. Never freshness-check the whole repo — a repo-wide `git log` reports stale after any commit anywhere.
+2. **Check freshness, scoped to the seeds.** With the seeds' `code_ref` paths known, compare the latest relevant commit with `mof_meta.last_commit` and compare commit timestamps with `mof_meta.last_updated`. Classify each seed as `fresh` when both pieces of evidence are covered, `stale` when relevant code is newer, or `unverified` when a path, commit, or timestamp cannot be proved. Run a mini Map cycle only for a stale seed. Never freshness-check the whole repo — a repo-wide `git log` reports stale after any commit anywhere.
 3. **Traverse the call graph.** From each seed, follow `exp:` (downstream) to **depth 2**. Go deeper along an edge only when its `relationships[].criticality` is `critical`. Record the depth reached. If the radius swallows most of the map, that is a failed query — say so and narrow the change instead of reporting the whole system as affected.
 4. **Fan out through state** — two paths the call graph cannot see:
    - **Entities.** For each in-radius Responsibility writing an entity (`ent:` marked `(w)`), add every Responsibility that reads it. A writer's behavior change breaks its readers with no call edge between them.
