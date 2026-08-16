@@ -127,9 +127,9 @@ Make the plan explicit:
 
 ## Visualize
 
-Only on explicit user request ("visualize the MoF", "generate a diagram", "check for SRP violations", "audit the map") — never automatically after Map. Generating the HTML on every code change would pop the browser open constantly.
+Only on explicit user request ("visualize the MoF", "generate the technical report", "check for SRP violations", "audit the map") — never automatically after Map. Generating the HTML on every code change would add noise and unnecessary work.
 
-Produces `docs/MOF.html`: a Mermaid graph by domain, each Function rendered as a subgraph holding its Responsibility nodes, a Function with `srp_status: violation` visually flagged; Functions and Impact Rules tables underneath; opened in the OS when done. A request framed as a checkup or audit gets the same output — the Functions table's `srp_status` column and each violating Function's flagged subgraph already are the audit, nothing separate to generate. The page shell is a fixed asset ([`mof-shell.html`](mof-shell.html)) that you copy and fill at five markers — never retype it. Translation rules, palette, and fill procedure: [`visualization.md`](visualization.md).
+Produces `docs/MOF.html`: a static technical report with metadata, domains, functions, responsibilities, technical relationships, impact rules, open questions, local search, and print-friendly CSS. A request framed as a checkup or audit gets the same output — the Functions table's `srp_status` and the relationship/impact tables provide the audit view. The page shell is a fixed asset ([`mof-shell.html`](mof-shell.html)) that you copy and fill at its markers — never retype it. Fill procedure: [`visualization.md`](visualization.md).
 
 ---
 

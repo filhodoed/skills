@@ -2,6 +2,8 @@
 
 Before changing a function, know exactly **who depends on it and what can break**.
 
+This is a portable Agent Skills core for Claude Code, Codex, and Gemini CLI. Installation and activation differ by agent; the MoF method and `docs/MOF.md` contract stay the same.
+
 The MoF is a living `docs/MOF.md` file that models a system's functions as business capabilities — their responsibilities, relationships, side effects, and impact rules — so humans and AI agents can plan changes with full context instead of guessing. Think of it as a dependency map with a blast-radius calculator, and a Single Responsibility Principle checkup, both built in. It is not a navigation map (e.g. a `docs/MOC.md`) — the two stay decoupled.
 
 ## How it works
@@ -14,7 +16,7 @@ The skill moves through three modes, picked automatically based on what you're a
 | --- | --- | --- |
 | **Map** | No MoF, it's stale, or a change just landed | Incremental discovery: inventory → domains → responsibilities → functions (grouped by code artifact, with a computed SRP status) → relationships → entities/events → impact rules, validating with you each cycle. After a landed change, the same cycle runs scoped to what it touched. Ends by regenerating the Impact Index. Past ~800 lines the map splits by domain — but the index stays whole in `docs/MOF.md`. |
 | **Query** | You're about to change code that touches logic, contracts, or behavior | Reads the Impact Index alone, locates the responsibilities you're touching, freshness-checks only *their* files against git, then traverses the graph to depth 2 (deeper only along critical edges). Fans out through shared entities and events, and through Functions flagged as SRP violations — impact paths a call graph can't see — checks affected workflows, impact rules, and cross-cutting rules, and only then opens the full detail of the responsibilities actually in radius. Cosmetic changes skip straight to the edit. |
-| **Visualize** | You ask to see the MoF as a diagram, or for an SRP checkup | Fills a fixed page shell into `docs/MOF.html`: a Mermaid graph grouped by domain, each Function as a subgraph holding its Responsibility nodes — a Function carrying more than one Responsibility gets a dashed red border — plus two reference tables (Impact Rules, Functions with their SRP status) underneath. Click a node to jump to its table row; a fixed "↑ Diagram" button brings you back. Opens automatically in your browser when it's done. |
+| **Visualize** | You ask to see the MoF as a technical report, or for an SRP checkup | Fills a fixed page shell into `docs/MOF.html`: metadata, summary, domains, functions, responsibilities, technical relationships with both domains, impact rules, open questions, local search, and print-friendly CSS. |
 
 Every item gets a collision-safe ID: Responsibilities use `RESP_<DOMAIN>_<NNN>` and Functions use `F_<DOMAIN>_<NNN>` (e.g. `F_BILLING_003`) so two sessions mapping different domains never collide; everything else uses a simple `<PREFIX>_<NNN>` — always the next free number, never reused.
 
@@ -33,15 +35,27 @@ A blast-radius query needs a small slice of what a MoF knows: who calls whom, wh
 - "Show me the MoF as a diagram"
 - "Check this codebase for Single Responsibility violations"
 
-## Make it fire automatically
+## Agent installation and activation
 
-The skill's description asks the agent to consult an existing MoF proactively, but a description can only be a hint. To make it reliable, add one line to your project's `CLAUDE.md`:
+The skill's description asks the agent to consult an existing MoF proactively, but a description can only be a hint. Add the equivalent instruction file for the agent in use:
 
 ```markdown
 Read `docs/MOF.md` before any change to logic, contracts, or behavior. Start at its Impact Index.
 ```
 
-That line is loaded on every session in that project, so it doesn't depend on the agent guessing.
+Use `CLAUDE.md` for Claude Code, `AGENTS.md` for Codex, and the project rules/instructions supported by Gemini CLI. The line is loaded with project instructions, so activation does not depend only on semantic skill matching.
+
+### Claude Code
+
+Use the plugin installation above or copy the skill to `.claude/skills/mof/`.
+
+### Codex
+
+Copy or link `skills/mof/` to `$CODEX_HOME/skills/mof/` (default `~/.codex/skills/mof/`) and add the mandatory-reading line to the project's `AGENTS.md`.
+
+### Gemini CLI
+
+Link the directory with `gemini skills link ./skills/mof` and add the same mandatory-reading rule to the project's supported instruction file.
 
 ## Try it without installing the plugin
 
@@ -52,6 +66,6 @@ That line is loaded on every session in that project, so it doesn't depend on th
      done)
 ```
 
-## Note on the HTML view
+## Note on the HTML report
 
-`docs/MOF.html` loads Mermaid from jsDelivr at a pinned version, so it needs network access the first time it opens. That's the skill's only external dependency — vendoring ~3 MB of JavaScript would tax every install to serve the offline case. If you need a fully offline artifact, download `mermaid.min.js` next to the HTML and point the `<script src>` at it.
+`docs/MOF.html` is a static report using only HTML, CSS, and small local JavaScript. It does not load a CDN, require a server, or make network requests. `docs/MOF.md` remains the source of truth.

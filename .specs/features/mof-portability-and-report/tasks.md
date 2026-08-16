@@ -117,6 +117,8 @@ T1 → T2 → T3 → T4 → T5 → T6 → T7
 **Tests**: Targeted documentation checks for all three agents and excluded dependencies.
 **Gate**: Quick
 
+**Status**: Done — commit pending
+
 ### T7: Final structural validation and release notes
 
 **What**: Update changelog/release metadata and run the complete structural validation of the skill and generated report.
