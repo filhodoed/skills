@@ -59,14 +59,15 @@ Read `docs/MOF.md` before any change to logic, contracts, or behavior. Start at 
 
 ### Codex
 
-Copy or link the skill directory into the personal Codex skills directory:
+Inside Codex, install the skill directly from this repository:
 
-```bash
-mkdir -p "${CODEX_HOME:-$HOME/.codex}/skills/mof"
-cp -R skills/mof/. "${CODEX_HOME:-$HOME/.codex}/skills/mof/"
+```text
+$skill-installer install https://github.com/filhodoed/skills/tree/dev/skills/mof
 ```
 
-If `CODEX_HOME` is not defined, use `~/.codex/skills/mof/`.
+Restart Codex if the skill does not appear immediately. The installer places it under `${CODEX_HOME:-$HOME/.codex}/skills/mof/`.
+
+For a manual installation, copy or link `skills/mof/` into that same directory.
 
 ### Gemini CLI
 
