@@ -95,6 +95,8 @@ T1 → T2 → T3 → T4 → T5 → T6 → T7
 **Tests**: Offline standalone inspection, required-column checks, no-CDN/Mermaid checks, local-search and print-rule checks.
 **Gate**: Full
 
+**Status**: Done — commit pending
+
 ### T5: Define safe report generation rules
 
 **What**: Document text escaping, unresolved relationship rendering, and the rule that `docs/MOF.md` remains the only source of truth.
