@@ -5,7 +5,7 @@
 Implement these tasks with the `tlc-spec-driven` skill, one atomic task at a time, with structural validation and an atomic commit per task.
 
 **Spec**: `.specs/features/mof-portability-and-report/spec.md`
-**Status**: In Progress
+**Status**: Done
 
 ## Test Coverage Matrix
 
@@ -73,7 +73,7 @@ T1 → T2 → T3 → T4 → T5 → T6 → T7
 **Tests**: Targeted structural assertions for split-map rules and no-duplication rule.
 **Gate**: Quick
 
-**Status**: Done — commit pending
+**Status**: Done — commit `db4351b`
 
 ### T3: Add deterministic Query evidence rules
 
@@ -132,7 +132,7 @@ T1 → T2 → T3 → T4 → T5 → T6 → T7
 
 ## Closeout
 
-All requirements are implemented in the current task sequence; the final validation report is pending the independent closeout check.
+All requirements are implemented in the current task sequence; the independent closeout report is `.specs/features/mof-portability-and-report/validation.md`.
 
 ## Dependency Cross-Check
 
