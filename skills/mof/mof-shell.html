@@ -1,12 +1,16 @@
 <!doctype html>
+<html lang="pt-BR">
+<head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Relatório técnico Map of Functions">
 <title>Map of Functions — {{TITLE}}</title>
 <style>
   :root { color-scheme: light; --page:#f3f6f5; --surface:#fff; --ink:#172126; --muted:#65737a; --line:#dce4e6; --blue:#176b87; --red:#b84a4a; --amber:#a56b00; --green:#337056; }
   * { box-sizing:border-box; }
+  html,body { min-height:100%; }
   body { margin:0; background:var(--page); color:var(--ink); font:14px/1.4 system-ui,sans-serif; }
-  main { max-width:1180px; margin:28px auto; background:var(--surface); border:1px solid var(--line); }
+  main { width:100%; min-height:100vh; background:var(--surface); }
   header { padding:30px 34px 24px; border-bottom:1px solid var(--line); }
   h1 { margin:0 0 7px; font-size:28px; letter-spacing:-.03em; }
   h2 { margin:30px 0 12px; font-size:17px; }
@@ -20,23 +24,23 @@
   .stat span { color:var(--muted); font-size:12px; }
   .toolbar { display:flex; justify-content:space-between; gap:12px; align-items:center; }
   .filter-bar { display:flex; flex-wrap:wrap; gap:7px; margin:0 0 12px; }
-  .chip { border:1px solid var(--line); border-radius:999px; padding:6px 10px; color:var(--muted); background:var(--surface); font:inherit; font-size:12px; cursor:pointer; }
+  .chip { border:1px solid var(--line); border-radius:999px; padding:6px 10px; color:var(--muted); background:var(--surface); font:inherit; font-size:12px; cursor:pointer; white-space:nowrap; }
   .chip[aria-pressed="true"] { border-color:var(--blue); color:var(--blue); background:#eef7f9; }
   input[type=search] { width:min(300px,100%); border:1px solid var(--line); padding:9px 11px; font:inherit; font-size:13px; color:var(--ink); background:#fff; }
-  .table-wrap { overflow-x:hidden; border:1px solid var(--line); }
+  .table-wrap { overflow-x:auto; border:1px solid var(--line); }
   table { width:100%; border-collapse:collapse; font-size:12px; table-layout:auto; }
   th { padding:10px 11px; background:#f7f9f9; color:var(--muted); font-size:11px; text-align:left; text-transform:uppercase; letter-spacing:.06em; white-space:nowrap; }
   td { padding:11px; border-top:1px solid var(--line); vertical-align:top; overflow-wrap:anywhere; }
   code { color:#285768; font:11px ui-monospace,SFMono-Regular,Menlo,monospace; overflow-wrap:anywhere; }
   .domain { color:var(--blue); font-weight:700; }
-  .status { display:inline-block; padding:3px 6px; border:1px solid currentColor; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; }
+  .status { display:inline-block; border:1px solid currentColor; border-radius:999px; padding:3px 6px; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; white-space:nowrap; }
+  .impact th:nth-child(1),.impact td:nth-child(1),.impact th:nth-child(4),.impact td:nth-child(4) { white-space:nowrap; }
   .critical { color:var(--red); } .medium { color:var(--amber); } .ok { color:var(--green); }
   .empty { color:var(--muted); font-style:italic; }
   footer { color:var(--muted); font-size:12px; margin-top:24px; padding-top:18px; border-top:1px solid var(--line); }
   .legend { display:flex; flex-wrap:wrap; gap:7px 16px; margin-top:10px; }
   .legend span { white-space:nowrap; }
   @media (max-width:900px) {
-    main { margin:14px; }
     header,.content { padding-left:22px; padding-right:22px; }
     table { table-layout:auto; }
     th,td { padding:9px; }
@@ -44,7 +48,6 @@
     .relationships th:nth-child(3),.relationships td:nth-child(3),.relationships th:nth-child(6),.relationships td:nth-child(6),.relationships th:nth-child(7),.relationships td:nth-child(7),.relationships th:nth-child(8),.relationships td:nth-child(8) { width:9%; }
   }
   @media (max-width:700px) {
-    main { margin:0; border-left:0; border-right:0; }
     header,.content { padding:20px 16px; }
     h1 { font-size:24px; }
     .summary { grid-template-columns:repeat(2,1fr); }
@@ -56,13 +59,15 @@
     td { display:grid; grid-template-columns:minmax(7rem,30%) 1fr; gap:10px; border-top:0; padding:7px 10px; }
     td::before { content:attr(data-label); color:var(--muted); font-size:10px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; }
     .domains td:nth-child(1)::before { content:'Domínio'; } .domains td:nth-child(2)::before { content:'Responsabilidades'; } .domains td:nth-child(3)::before { content:'Funções'; } .domains td:nth-child(4)::before { content:'Risco máximo'; }
-    .functions td:nth-child(1)::before { content:'Domínio'; } .functions td:nth-child(2)::before { content:'Função'; } .functions td:nth-child(3)::before { content:'Responsabilidades'; } .functions td:nth-child(4)::before { content:'SRP'; } .functions td:nth-child(5)::before { content:'Risco'; }
+    .functions td:nth-child(1)::before { content:'Domínio'; } .functions td:nth-child(2)::before { content:'Função'; } .functions td:nth-child(3)::before { content:'Arquivo'; } .functions td:nth-child(4)::before { content:'Responsabilidades'; } .functions td:nth-child(5)::before { content:'SRP'; } .functions td:nth-child(6)::before { content:'Risco'; }
     .relationships td:nth-child(1)::before { content:'Domínio origem'; } .relationships td:nth-child(2)::before { content:'Origem'; } .relationships td:nth-child(3)::before { content:'Relação'; } .relationships td:nth-child(4)::before { content:'Domínio destino'; } .relationships td:nth-child(5)::before { content:'Destino'; } .relationships td:nth-child(6)::before { content:'Acoplamento'; } .relationships td:nth-child(7)::before { content:'Canal'; } .relationships td:nth-child(8)::before { content:'Criticidade'; } .relationships td:nth-child(9)::before { content:'Detalhes'; }
-    .impact td:nth-child(1)::before { content:'ID'; } .impact td:nth-child(2)::before { content:'Domínio'; } .impact td:nth-child(3)::before { content:'Gatilho'; } .impact td:nth-child(4)::before { content:'Mudança'; } .impact td:nth-child(5)::before { content:'Afetados'; } .impact td:nth-child(6)::before { content:'Ação recomendada'; }
+    .impact td:nth-child(1)::before { content:'ID'; } .impact td:nth-child(2)::before { content:'Domínio'; } .impact td:nth-child(3)::before { content:'Gatilho'; } .impact td:nth-child(4)::before { content:'Mudança'; } .impact td:nth-child(5)::before { content:'Risco'; } .impact td:nth-child(6)::before { content:'Afetados'; } .impact td:nth-child(7)::before { content:'Ação recomendada'; }
     .questions td:nth-child(1)::before { content:'Pergunta'; } .questions td:nth-child(2)::before { content:'Contexto'; }
   }
   @media print { body { background:#fff; } main { margin:0; border:0; } input[type=search] { display:none; } .table-wrap { overflow:visible; border-color:#aaa; } table { display:table; table-layout:auto; font-size:9px; } thead { display:table-header-group; position:static; width:auto; height:auto; overflow:visible; clip:auto; white-space:normal; } tbody { display:table-row-group; } tr { display:table-row; border:0; margin:0; padding:0; break-inside:avoid; } th,td { display:table-cell; padding:6px; } td::before { content:none !important; } h2 { break-after:avoid; } footer { break-inside:avoid; } }
 </style>
+</head>
+<body>
 <main>
   <header>
     <h1>Map of Functions — {{TITLE}}</h1>
@@ -72,37 +77,42 @@
   <div class="content">
     <section class="summary" aria-label="Resumo do mapa">{{SUMMARY}}</section>
     <section><h2>Domínios</h2><div class="table-wrap"><table class="domains"><thead><tr><th>Domínio</th><th>Responsabilidades</th><th>Funções</th><th>Risco máximo</th></tr></thead><tbody>{{ROWS_DOMAINS}}</tbody></table></div></section>
-    <section><div class="toolbar"><h2>Funções e responsabilidades</h2></div><div id="function-filters" class="filter-bar" aria-label="Filtros de funções"><button class="chip" type="button" data-filter="all" aria-pressed="true">Todos</button><button class="chip" type="button" data-filter="high-risk" aria-pressed="false">Alto risco</button><button class="chip" type="button" data-filter="srp" aria-pressed="false">Violação SRP</button><button class="chip" type="button" data-filter="repeated-file" aria-pressed="false">Arquivos repetidos</button></div><div class="table-wrap"><table class="functions" id="functions"><thead><tr><th>Domínio</th><th>Função</th><th>Responsabilidades</th><th>SRP</th><th>Risco</th></tr></thead><tbody>{{ROWS_FUNCTIONS}}</tbody></table></div></section>
+    <section><div class="toolbar"><h2>Funções e responsabilidades</h2></div><div id="function-filters" class="filter-bar" aria-label="Filtros de funções"><button class="chip" type="button" data-filter="all" aria-pressed="true">Todos</button><button class="chip" type="button" data-filter="high-risk" aria-pressed="false">Alto risco</button><button class="chip" type="button" data-filter="srp" aria-pressed="false">Violação SRP</button><button class="chip" type="button" data-filter="repeated-file" aria-pressed="false">Arquivos repetidos</button></div><div class="table-wrap"><table class="functions" id="functions"><thead><tr><th>Domínio</th><th>Função</th><th>Arquivo</th><th>Responsabilidades</th><th>SRP</th><th>Risco</th></tr></thead><tbody>{{ROWS_FUNCTIONS}}</tbody></table></div></section>
     <section><div class="toolbar"><h2>Relacionamentos técnicos</h2><input id="relationship-search" type="search" placeholder="Buscar domínio, ID ou relação…" aria-label="Buscar relacionamentos"></div><div id="relationship-filters" class="filter-bar" aria-label="Filtros de relacionamentos"><button class="chip" type="button" data-filter="all" aria-pressed="true">Todos</button><button class="chip" type="button" data-filter="cross-domain" aria-pressed="false">Entre domínios</button><button class="chip" type="button" data-filter="critical" aria-pressed="false">Críticos</button><button class="chip" type="button" data-filter="direct" aria-pressed="false">Diretos</button><button class="chip" type="button" data-filter="indirect" aria-pressed="false">Indiretos</button><button class="chip" type="button" data-filter="reads" aria-pressed="false">Leitura</button><button class="chip" type="button" data-filter="writes" aria-pressed="false">Escrita</button></div><div class="table-wrap"><table class="relationships" id="relationships"><thead><tr><th>Domínio origem</th><th>Origem</th><th>Relação</th><th>Domínio destino</th><th>Destino</th><th>Acoplamento</th><th>Canal</th><th>Criticidade</th><th>Detalhes</th></tr></thead><tbody>{{ROWS_RELATIONSHIPS}}</tbody></table></div></section>
-    <section><h2>Regras de impacto</h2><div id="impact-filters" class="filter-bar" aria-label="Filtros de regras de impacto"><button class="chip" type="button" data-filter="all" aria-pressed="true">Todos</button><button class="chip" type="button" data-filter="high" aria-pressed="false">Alto risco</button><button class="chip" type="button" data-filter="medium" aria-pressed="false">Risco médio</button><button class="chip" type="button" data-filter="low" aria-pressed="false">Baixo risco</button><button class="chip" type="button" data-filter="breaking" aria-pressed="false">Breaking</button><button class="chip" type="button" data-filter="behavioral" aria-pressed="false">Behavioral</button></div><div class="table-wrap"><table class="impact" id="impact"><thead><tr><th>ID</th><th>Domínio</th><th>Gatilho</th><th>Mudança</th><th>Afetados</th><th>Ação recomendada</th></tr></thead><tbody>{{ROWS_IMPACT}}</tbody></table></div></section>
+    <section><h2>Regras de impacto</h2><div id="impact-filters" class="filter-bar" aria-label="Filtros de regras de impacto"><button class="chip" type="button" data-filter="all" aria-pressed="true">Todos</button><button class="chip" type="button" data-filter="high" aria-pressed="false">Alto risco</button><button class="chip" type="button" data-filter="medium" aria-pressed="false">Risco médio</button><button class="chip" type="button" data-filter="low" aria-pressed="false">Baixo risco</button><button class="chip" type="button" data-filter="breaking" aria-pressed="false">Breaking</button><button class="chip" type="button" data-filter="behavioral" aria-pressed="false">Behavioral</button></div><div class="table-wrap"><table class="impact" id="impact"><thead><tr><th>ID</th><th>Domínio</th><th>Gatilho</th><th>Mudança</th><th>Risco</th><th>Afetados</th><th>Ação recomendada</th></tr></thead><tbody>{{ROWS_IMPACT}}</tbody></table></div></section>
     <section><h2>Perguntas abertas</h2><div class="table-wrap"><table class="questions"><thead><tr><th>Pergunta</th><th>Contexto</th></tr></thead><tbody>{{ROWS_QUESTIONS}}</tbody></table></div></section>
     <footer><div>Documento gerado a partir do MoF, destinado a consulta técnica e impressão.</div><div class="legend" aria-label="Legenda de siglas"><span><strong>SRP</strong> — Single Responsibility Principle</span><span><strong>F_</strong> — Function</span><span><strong>RESP_</strong> — Responsibility</span><span><strong>IR_</strong> — Impact Rule</span><span><strong>FE</strong> — Frontend</span><span><strong>WK</strong> — Worker</span><span><strong>API</strong> — Application Programming Interface</span><span><strong>KV</strong> — Key-Value storage</span><span><strong>D1</strong> — Cloudflare D1</span></div></footer>
   </div>
 </main>
 <script>
-  (() => { const input = document.getElementById('relationship-search'); const rows = [...document.querySelectorAll('#relationships tbody tr')]; if (!input) return; input.addEventListener('input', () => { const term = input.value.toLocaleLowerCase(); rows.forEach(row => { row.hidden = !row.textContent.toLocaleLowerCase().includes(term); }); }); })();
   (() => {
-    const table = document.getElementById('relationships'); const filterBar = document.getElementById('relationship-filters');
+    const table = document.getElementById('relationships'); const filterBar = document.getElementById('relationship-filters'); const input = document.getElementById('relationship-search');
     if (!table || !filterBar) return;
-    const rows = [...table.querySelectorAll('tbody tr')]; const domains = [...new Set(rows.flatMap(row => [row.cells[0]?.textContent.trim(), row.cells[3]?.textContent.trim()]).filter(Boolean))];
+    const rows = [...table.querySelectorAll('tbody tr')]; let filter = 'all'; const domains = [...new Set(rows.flatMap(row => [row.cells[0]?.textContent.trim(), row.cells[3]?.textContent.trim()]).filter(Boolean))];
+    rows.forEach(row => { row.dataset.searchText = row.textContent.toLocaleLowerCase(); });
     domains.forEach(domain => { const button = document.createElement('button'); button.className = 'chip'; button.type = 'button'; button.dataset.filter = `domain:${domain}`; button.setAttribute('aria-pressed', 'false'); button.textContent = domain; filterBar.appendChild(button); });
-    filterBar.addEventListener('click', event => { const button = event.target.closest('[data-filter]'); if (!button) return; filterBar.querySelectorAll('.chip').forEach(chip => chip.setAttribute('aria-pressed', String(chip === button))); const filter = button.dataset.filter; rows.forEach(row => { const text = row.textContent.toLocaleLowerCase(); const source = row.cells[0]?.textContent.trim(); const target = row.cells[3]?.textContent.trim(); row.hidden = filter === 'all' ? false : filter === 'cross-domain' ? source === target : filter === 'critical' ? !/(critical|crítico)/i.test(text) : filter === 'direct' ? !/\bdirect\b|\bdireto\b|\bdireta\b/i.test(text) : filter === 'indirect' ? !/\bindirect\b|\bindireto\b|\bindireta\b/i.test(text) : filter === 'reads' ? !/read|leit/i.test(text) : filter === 'writes' ? !/write|escrit/i.test(text) : filter.startsWith('domain:') ? source !== filter.slice(7) && target !== filter.slice(7) : false; }); });
+    const apply = () => { const term = input?.value.toLocaleLowerCase() || ''; rows.forEach(row => { const source = row.cells[0]?.textContent.trim(); const target = row.cells[3]?.textContent.trim(); const relation = row.cells[2]?.textContent.toLocaleLowerCase() || ''; const criticality = row.cells[7]?.textContent.toLocaleLowerCase() || ''; const matchesFilter = filter === 'all' ? true : filter === 'cross-domain' ? source !== target : filter === 'critical' ? /critical|crítico/.test(criticality) : filter === 'direct' ? /\bdirect\b|\bdireto\b|\bdireta\b/.test(relation) : filter === 'indirect' ? /\bindirect\b|\bindireto\b|\bindireta\b/.test(relation) : filter === 'reads' ? /read|leit/.test(relation) : filter === 'writes' ? /write|escrit/.test(relation) : filter.startsWith('domain:') ? source === filter.slice(7) || target === filter.slice(7) : false; row.hidden = !matchesFilter || !row.dataset.searchText.includes(term); }); };
+    input?.addEventListener('input', apply);
+    filterBar.addEventListener('click', event => { const button = event.target.closest('[data-filter]'); if (!button) return; filterBar.querySelectorAll('.chip').forEach(chip => chip.setAttribute('aria-pressed', String(chip === button))); filter = button.dataset.filter; apply(); });
   })();
   (() => {
     const table = document.getElementById('impact'); const filterBar = document.getElementById('impact-filters');
     if (!table || !filterBar) return;
     const rows = [...table.querySelectorAll('tbody tr')]; const domains = [...new Set(rows.map(row => row.cells[1]?.textContent.trim()).filter(Boolean))];
     domains.forEach(domain => { const button = document.createElement('button'); button.className = 'chip'; button.type = 'button'; button.dataset.filter = `domain:${domain}`; button.setAttribute('aria-pressed', 'false'); button.textContent = domain; filterBar.appendChild(button); });
-    filterBar.addEventListener('click', event => { const button = event.target.closest('[data-filter]'); if (!button) return; filterBar.querySelectorAll('.chip').forEach(chip => chip.setAttribute('aria-pressed', String(chip === button))); const filter = button.dataset.filter; rows.forEach(row => { const text = row.textContent.toLocaleLowerCase(); row.hidden = filter === 'all' ? false : filter === 'high' ? !/(high|alto|critical|crítico)/i.test(text) : filter === 'medium' ? !/(medium|médio|medium)/i.test(text) : filter === 'low' ? !/(low|baixo)/i.test(text) : filter === 'breaking' ? !/breaking|quebr/i.test(text) : filter === 'behavioral' ? !/behavioral|comport/i.test(text) : filter.startsWith('domain:') ? row.cells[1]?.textContent.trim() !== filter.slice(7) : false; }); });
+    filterBar.addEventListener('click', event => { const button = event.target.closest('[data-filter]'); if (!button) return; filterBar.querySelectorAll('.chip').forEach(chip => chip.setAttribute('aria-pressed', String(chip === button))); const filter = button.dataset.filter; rows.forEach(row => { const impactType = row.cells[3]?.textContent.toLocaleLowerCase() || ''; const risk = row.cells[4]?.textContent.toLocaleLowerCase() || ''; row.hidden = filter === 'all' ? false : filter === 'high' ? !/(high|alto|critical|crítico)/.test(risk) : filter === 'medium' ? !/medium|médio/.test(risk) : filter === 'low' ? !/low|baixo/.test(risk) : filter === 'breaking' ? !/breaking|quebr/.test(impactType) : filter === 'behavioral' ? !/behavioral|comport/.test(impactType) : filter.startsWith('domain:') ? row.cells[1]?.textContent.trim() !== filter.slice(7) : false; }); });
   })();
   (() => {
     const table = document.getElementById('functions'); const filterBar = document.getElementById('function-filters');
     if (!table || !filterBar) return;
     const rows = [...table.querySelectorAll('tbody tr')]; const files = new Map();
-    rows.forEach(row => [...row.querySelectorAll('code')].map(node => node.textContent.trim().replace(/:\d+(?::\d+)?$/, '')).filter(value => value.includes('/') && /\.[a-z0-9]+$/i.test(value)).forEach(file => files.set(file, (files.get(file) || 0) + 1)));
-    rows.forEach(row => { row.dataset.repeatedFile = [...row.querySelectorAll('code')].some(node => (files.get(node.textContent.trim().replace(/:\d+(?::\d+)?$/, '')) || 0) > 1) ? 'true' : 'false'; });
+    const codeRef = row => row.dataset.codeRef || [...row.querySelectorAll('code')].map(node => node.textContent.trim().replace(/:\d+(?::\d+)?$/, '')).find(value => /[/.]/.test(value)) || '';
+    rows.forEach(row => { const file = codeRef(row); if (file) files.set(file, (files.get(file) || 0) + 1); });
+    rows.forEach(row => { row.dataset.repeatedFile = (files.get(codeRef(row)) || 0) > 1 ? 'true' : 'false'; });
     const domains = [...new Set(rows.map(row => row.cells[0]?.textContent.trim()).filter(Boolean))];
     domains.forEach(domain => { const button = document.createElement('button'); button.className = 'chip'; button.type = 'button'; button.dataset.filter = `domain:${domain}`; button.setAttribute('aria-pressed', 'false'); button.textContent = domain; filterBar.appendChild(button); });
-    filterBar.addEventListener('click', event => { const button = event.target.closest('[data-filter]'); if (!button) return; filterBar.querySelectorAll('.chip').forEach(chip => chip.setAttribute('aria-pressed', String(chip === button))); const filter = button.dataset.filter; rows.forEach(row => { const text = row.textContent.toLocaleLowerCase(); row.hidden = filter === 'all' ? false : filter === 'high-risk' ? !/(high|critical|alto|crítico)/i.test(text) : filter === 'srp' ? !/violation|violação/i.test(text) : filter === 'repeated-file' ? row.dataset.repeatedFile !== 'true' : row.cells[0]?.textContent.trim() !== filter.slice(7); }); });
+    filterBar.addEventListener('click', event => { const button = event.target.closest('[data-filter]'); if (!button) return; filterBar.querySelectorAll('.chip').forEach(chip => chip.setAttribute('aria-pressed', String(chip === button))); const filter = button.dataset.filter; rows.forEach(row => { const risk = row.cells[5]?.textContent.toLocaleLowerCase() || ''; const srp = row.cells[4]?.textContent.toLocaleLowerCase() || ''; row.hidden = filter === 'all' ? false : filter === 'high-risk' ? !/(high|critical|alto|crítico)/.test(risk) : filter === 'srp' ? !/violation|violação/.test(srp) : filter === 'repeated-file' ? row.dataset.repeatedFile !== 'true' : row.cells[0]?.textContent.trim() !== filter.slice(7); }); });
   })();
 </script>
+</body>
+</html>

@@ -4,6 +4,19 @@ All notable changes to this project are documented here. Format follows [Keep a 
 
 ## [Unreleased]
 
+### Fixed
+
+- `mof`: generated reports now occupy the viewport, preserve filter and status chips on one line, and filter repeated files from explicit function `code_ref` values.
+- `mof`: relationship search now composes with active filters, while relation, function, and impact filters inspect only their respective table columns.
+- `mof`: status badges now use rounded chip styling.
+
+### Changed
+
+- `mof`: the Functions table now exposes `Arquivo` as a separate column next to `Função`.
+- `mof`: Coupling and Criticality values in the Relationships table now render as status chips.
+- `mof`: Impact Rules now separates change type from risk in dedicated columns.
+- `mof`: Impact Rules IDs and change types now remain on one line.
+
 ## [0.7.0] - 2026-08-16
 
 ### Added

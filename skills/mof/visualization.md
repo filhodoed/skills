@@ -13,14 +13,14 @@ Fill the shell [`mof-shell.html`](mof-shell.html) by replacing these markers:
 | `{{META}}` | version, freshness, last update, and commit |
 | `{{SUMMARY}}` | counts of domains, responsibilities, impact rules, and SRP violations |
 | `{{ROWS_DOMAINS}}` | domain projections from responsibilities and functions |
-| `{{ROWS_FUNCTIONS}}` | one row per `functions[]` entry |
-| `{{ROWS_RELATIONSHIPS}}` | one row per `relationships[]` entry, including both domains |
-| `{{ROWS_IMPACT}}` | one row per `impact_rules[]` entry, ordered by risk |
+| `{{ROWS_FUNCTIONS}}` | one `<tr data-code-ref="…">` per `functions[]` entry, with separate Function and File cells; `data-code-ref` is the escaped `code_ref` and drives the repeated-file filter |
+| `{{ROWS_RELATIONSHIPS}}` | one row per `relationships[]` entry, including both domains; render Coupling and Criticality as `<span class="status">…</span>` chips, adding `critical`, `medium`, or `ok` when the value maps to those states |
+| `{{ROWS_IMPACT}}` | one row per `impact_rules[]` entry, ordered by risk; render `impact_type` in the Change cell and `risk` in its own `<span class="status">…</span>` Risk cell (`high` = `critical`, `medium` = `medium`, `low` = `ok`) |
 | `{{ROWS_QUESTIONS}}` | one row per `open_questions[]` entry |
 
 ## Relationship table
 
-The relationship table is the primary technical view. It must show source domain, source Responsibility, relationship type, destination domain, destination Responsibility, coupling, channel, criticality, and description. Preserve unresolved identifiers and mark them as unresolved; never silently omit an edge.
+The relationship table is the primary technical view. It must show source domain, source Responsibility, relationship type, destination domain, destination Responsibility, coupling, channel, criticality, and description. Coupling and criticality use the shared `status` chip; criticality adds the matching semantic color class when available. Preserve unresolved identifiers and mark them as unresolved; never silently omit an edge.
 
 ## Safety and portability
 
@@ -38,10 +38,13 @@ After writing `docs/MOF.html`, verify that the generated file contains the curre
 - `id="function-filters"`, `id="relationship-filters"`, and `id="impact-filters"`;
 - `class="legend"` and the abbreviation entries `SRP`, `F_`, `RESP_`, and `IR_`;
 - the responsive media rules, including `max-width:700px` and the stacked-card selectors;
+- `data-code-ref` in each Functions-table row;
+- `status` chips in the Coupling and Criticality cells of each Relationships-table row;
+- a dedicated Risk cell, after Change, in each Impact Rules-table row;
 - no unresolved `{{...}}` markers remain.
 
 If any check fails, the report was not regenerated from the current `mof-shell.html`; regenerate it before reporting success.
 
 ## Human-oriented behavior
 
-The report is optimized for quick technical consultation, local search, filter chips, responsive viewport use, and printing to PDF. The Functions table supports risk, SRP, repeated-file, and domain filters; the Relationships table supports domain, direction, coupling, channel, and criticality filters; the Impact Rules table supports risk, impact type, and domain filters. Tables wrap on medium viewports and become labeled stacked cards on narrow viewports, while the footer explains the MoF abbreviations used in the report. It is not part of the agent's Query flow and does not replace the Impact Index.
+The report occupies the available viewport, with horizontal table scrolling only when required before the narrow-screen card layout. Filter, status, coupling, criticality, and risk chips remain on one line. Status chips are rounded. In Impact Rules, ID and Change values do not wrap. The table separates change type from risk, while retaining filters for both values. Relationship search and filtering compose, and every filter reads only its dedicated table column. The Functions table supports risk, SRP, repeated-file, and domain filters; the Relationships table supports domain, direction, coupling, channel, and criticality filters. The repeated-file filter compares the generated `data-code-ref`, never rendered text. The footer explains the MoF abbreviations used in the report. It is not part of the agent's Query flow and does not replace the Impact Index.
