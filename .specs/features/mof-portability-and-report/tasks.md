@@ -106,6 +106,8 @@ T1 → T2 → T3 → T4 → T5 → T6 → T7
 **Tests**: Targeted checks for escaping guidance and safe text rendering APIs.
 **Gate**: Quick
 
+**Status**: Done — commit pending
+
 ### T6: Document Claude Code, Codex, and Gemini CLI usage
 
 **What**: Update repository and skill documentation with portable-core guidance and per-agent installation/activation paths.

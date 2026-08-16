@@ -112,7 +112,7 @@ The MoF core is useful across agents, but its freshness rules are date-based and
 | MOF-11 | P1: Dependency-free technical HTML report | Visual | Verified in T4 |
 | MOF-12 | P1: Dependency-free technical HTML report | Visual | Verified in T4 |
 | MOF-13 | P1: Dependency-free technical HTML report | Visual | Verified in T4 |
-| MOF-14 | P1: Dependency-free technical HTML report | Visual | Pending |
+| MOF-14 | P1: Dependency-free technical HTML report | Visual | Verified in T5 |
 | MOF-15 | P2: Multi-agent documentation | Docs | Pending |
 | MOF-16 | P2: Multi-agent documentation | Docs | Pending |
 | MOF-17 | P2: Multi-agent documentation | Docs | Pending |
