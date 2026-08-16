@@ -41,9 +41,13 @@ mof_meta:
   system_name: "<NAME>"
   purpose: "<1-2 sentences>"
   version: "0.1.0"
-  last_updated: "YYYY-MM-DD" # Query step 2 trusts this; Map must update it
-  domains: ["<DOMAIN_1>", "<DOMAIN_2>"] # order fixes the diagram's color slots
+  last_updated: "YYYY-MM-DDTHH:MM:SSZ" # Query compares commit timestamps; Map must update it
+  last_commit: "<full-or-short-git-commit>" # Query compares this with the latest relevant code commit
+  freshness: "fresh | stale | unverified" # Derived per seed during Query; never hand-edit as evidence
+  domains: ["<DOMAIN_1>", "<DOMAIN_2>"] # stable display order
 ```
+
+When the map is split, this root file is the global source for the complete `impact_index`, cross-domain relationships and impact rules, cross-cutting rules, open questions, and revision history. Domain files own their local Responsibilities, Functions, Entities, Events, and intra-domain Relationships. A Responsibility must appear in exactly one file.
 
 ## Impact Index
 

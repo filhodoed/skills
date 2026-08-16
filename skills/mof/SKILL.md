@@ -7,7 +7,7 @@ description: Map of Functions (MoF) — a living map of a system's functions, de
 
 The MoF is a structured knowledge base that models a system's functions, their responsibilities, relationships, and impact rules, so humans and AI agents can plan and execute changes with safety and context. The central goal: before changing a function, know exactly **who depends on it and what can break**.
 
-The artifact produced and maintained by this skill is `docs/MOF.md` at the project root (create `docs/` if it doesn't exist). If the project has a `CLAUDE.md`, add a line referencing the MoF as mandatory reading before structural changes — that line, not this description, is what reliably makes the map get consulted.
+The artifact produced and maintained by this skill is `docs/MOF.md` at the project root (create `docs/` if it doesn't exist). If the project has an instruction file such as `CLAUDE.md` or `AGENTS.md`, add a line referencing the MoF as mandatory reading before structural changes — that line, not this description, is what reliably makes the map get consulted.
 
 Don't confuse it with a navigation map (e.g. a `docs/MOC.md`, Map of Content): the MoF documents technical blast radius between functions; a navigation map documents project navigation. Keep the two decoupled — never merge one's content into the other.
 
@@ -63,20 +63,22 @@ Every **Workflow** must answer: which Responsibilities compose it; where it star
 
 ### When to split by domain
 
-A single `docs/MOF.md` is the default. Past ~800 lines, split by domain: `docs/mof/<domain>.md` holds that domain's Responsibilities, Functions, Entities, Events, and intra-domain Relationships; `docs/MOF.md` becomes an index — Metadata, a domain table linking to each file, cross-domain Relationships and Impact Rules, Cross-Cutting Rules, Open Questions, Revision History.
+A single `docs/MOF.md` is the default. Past ~800 lines, split by domain: `docs/mof/<domain>.md` holds that domain's Responsibilities, Functions, Entities, Events, and intra-domain Relationships; `docs/MOF.md` remains the global source for Metadata, the complete `impact_index`, a domain table linking to each file, cross-domain Relationships and Impact Rules, Cross-Cutting Rules, Open Questions, and Revision History.
 
 **`impact_index` never splits.** It stays whole in `docs/MOF.md` covering every domain, so a cross-domain traversal still costs one file read. Never duplicate a Responsibility across two files.
 
+When a split map changes, update the owning domain file and the root `docs/MOF.md` in the same change. Keep domain-local responsibilities, functions, entities, events, and relationships in their domain file; keep cross-domain edges and global projections in the root file. A Responsibility has one home only, and the root index must be regenerated from all domain files after every structural change.
+
 ### After a change lands
 
-Update in `docs/MOF.md`:
+Update the owning domain file and the root `docs/MOF.md` when the map is split, or only `docs/MOF.md` when it is not split:
 
 - Affected Responsibilities (their description, interfaces, side effects, state), and the `srp_status` of any Function whose Responsibility count changed
 - `relationships[]` created, changed, or removed
 - `entities[]` / `events[]` where the change altered who reads, writes, publishes, or consumes
 - Impact rules the change invalidated or created
 - **`impact_index` lines for every touched Responsibility**, regenerated from the sections above
-- **`mof_meta.last_updated`**, and `version` when the change is structural — Query step 2 reads `last_updated`, so leaving it stale makes every future query distrust a current map
+- **`mof_meta.last_updated`** and **`mof_meta.last_commit`**, and `version` when the change is structural — Query step 2 uses both commit and timestamp evidence, so leaving either stale makes the map untrusted
 - Revision history (version, date, commit, summary)
 
 The MoF is stale when it no longer reflects the system's behavior. Stale documentation is worse than none: it leads the agent to incorrect assumptions.
@@ -87,10 +89,10 @@ The MoF is stale when it no longer reflects the system's behavior. Stale documen
 
 Mandatory before proposing any code change that touches logic, contracts, or behavior. Purely cosmetic changes (typos, formatting, comments, doc text) skip straight to the edit.
 
-**Read `impact_index` and nothing else to start.** It carries every field this flow needs. Do not load the whole `docs/MOF.md`, and do not open any Responsibility's full block until it is already in the computed radius. This is the flow, not a size-dependent optimization.
+**Read `mof_meta` and `impact_index` first, then nothing else.** They carry the freshness and traversal fields this flow needs. Do not load the whole `docs/MOF.md`, and do not open any Responsibility's full block until it is already in the computed radius. This is the flow, not a size-dependent optimization.
 
 1. **Locate the seeds.** Grep `impact_index` for the task's subject: capability name, `code_ref` path, or domain. A `Function` id resolves to every Responsibility it groups.
-2. **Check freshness, scoped to the seeds.** With the seeds' `code_ref` paths known, run `git log -1 --format=%ad -- <those paths>` against `mof_meta.last_updated`. Run a mini Map cycle only for a seed whose code moved after the MoF. Never freshness-check the whole repo — a repo-wide `git log` reports stale after any commit anywhere.
+2. **Check freshness, scoped to the seeds.** With the seeds' `code_ref` paths known, compare the latest relevant commit with `mof_meta.last_commit` and compare commit timestamps with `mof_meta.last_updated`. Classify each seed as `fresh` when both pieces of evidence are covered, `stale` when relevant code is newer, or `unverified` when a path, commit, or timestamp cannot be proved. Run a mini Map cycle only for a stale seed. Never freshness-check the whole repo — a repo-wide `git log` reports stale after any commit anywhere.
 3. **Traverse the call graph.** From each seed, follow `exp:` (downstream) to **depth 2**. Go deeper along an edge only when its `relationships[].criticality` is `critical`. Record the depth reached. If the radius swallows most of the map, that is a failed query — say so and narrow the change instead of reporting the whole system as affected.
 4. **Fan out through state** — two paths the call graph cannot see:
    - **Entities.** For each in-radius Responsibility writing an entity (`ent:` marked `(w)`), add every Responsibility that reads it. A writer's behavior change breaks its readers with no call edge between them.
@@ -102,6 +104,8 @@ Mandatory before proposing any code change that touches logic, contracts, or beh
 9. **Only now read the details** — for the in-radius Responsibilities and only those: `responsibilities`, `non_responsibilities`, `interfaces`, `side_effects`, `state`, `notes`.
 10. **Derive actions:** tests to update, contracts to review, documentation and ADRs to create.
 11. **Only then** propose the code, respecting each Responsibility's `responsibilities` and `non_responsibilities`.
+
+The Query result must distinguish verified facts from assumptions and report the evidence path for every item added to the radius. If a relationship references a missing Responsibility, entity, event, workflow, or rule, preserve the identifier and mark it `unresolved` rather than silently dropping it.
 
 If the task touches code absent from the MoF, run a mini Map cycle for it first.
 
@@ -116,15 +120,16 @@ Make the plan explicit:
 - **Workflows affected:** `W_...`
 - **Impact rules triggered:** `IR_...`
 - **Cross-cutting rules in play:** which, and how the change satisfies them
+- **Evidence status:** `verified`, `unverified`, or `unresolved` for each relationship path
 - **Intended actions:** tests, contracts, documentation
 
 ---
 
 ## Visualize
 
-Only on explicit user request ("visualize the MoF", "generate a diagram", "check for SRP violations", "audit the map") — never automatically after Map. Generating the HTML on every code change would pop the browser open constantly.
+Only on explicit user request ("visualize the MoF", "generate the technical report", "check for SRP violations", "audit the map") — never automatically after Map. Generating the HTML on every code change would add noise and unnecessary work.
 
-Produces `docs/MOF.html`: a Mermaid graph by domain, each Function rendered as a subgraph holding its Responsibility nodes, a Function with `srp_status: violation` visually flagged; Functions and Impact Rules tables underneath; opened in the OS when done. A request framed as a checkup or audit gets the same output — the Functions table's `srp_status` column and each violating Function's flagged subgraph already are the audit, nothing separate to generate. The page shell is a fixed asset ([`mof-shell.html`](mof-shell.html)) that you copy and fill at five markers — never retype it. Translation rules, palette, and fill procedure: [`visualization.md`](visualization.md).
+Produces `docs/MOF.html`: a static technical report with metadata, domains, functions, responsibilities, technical relationships, impact rules, open questions, local search, and print-friendly CSS. A request framed as a checkup or audit gets the same output — the Functions table's `srp_status` and the relationship/impact tables provide the audit view. The page shell is a fixed asset ([`mof-shell.html`](mof-shell.html)) that you copy and fill at its markers — never retype it. Fill procedure: [`visualization.md`](visualization.md).
 
 ---
 

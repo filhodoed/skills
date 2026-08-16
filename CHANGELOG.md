@@ -4,6 +4,15 @@ All notable changes to this project are documented here. Format follows [Keep a 
 
 ## [Unreleased]
 
+### Added
+
+- `mof`: evidence-based freshness metadata with commit and timestamp support, deterministic Query evidence states, explicit split-map ownership, and a native HTML technical report with domain-aware relationship tables, local search, and print styles.
+- Documentation for Claude Code, Codex, and Gemini CLI usage of the portable Agent Skills core.
+
+### Removed
+
+- Mermaid and CDN loading from the optional HTML report.
+
 ## [0.5.0] - 2026-08-08
 
 ### Changed

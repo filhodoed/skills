@@ -2,56 +2,137 @@
 
 Before changing a function, know exactly **who depends on it and what can break**.
 
-The MoF is a living `docs/MOF.md` file that models a system's functions as business capabilities — their responsibilities, relationships, side effects, and impact rules — so humans and AI agents can plan changes with full context instead of guessing. Think of it as a dependency map with a blast-radius calculator, and a Single Responsibility Principle checkup, both built in. It is not a navigation map (e.g. a `docs/MOC.md`) — the two stay decoupled.
+The MoF is a portable Agent Skill for Claude Code, Codex, and Gemini CLI. It creates a living `docs/MOF.md` that maps responsibilities, functions, dependencies, impact paths, and technical relationships, so agents can plan changes with evidence instead of guessing.
 
-## How it works
+It is not a navigation map such as `docs/MOC.md`. The MoF describes technical blast radius; navigation documentation remains separate.
 
-Every function is decomposed into its `Responsibility`s — atomic units, one reason to change each. A `Function` just groups the Responsibilities that share one code artifact: one Responsibility means the code is clean, two or more means it's carrying more than one reason to change, and that's flagged automatically, no separate lint step.
+## What it answers
 
-The skill moves through three modes, picked automatically based on what you're asking for:
+The MoF helps answer questions such as:
 
-| Mode | When | What it does |
+- What depends on this responsibility?
+- Which callers, entity readers, event consumers, or workflows can break?
+- Which contracts and tests should be reviewed before the change?
+- Is the map fresh, stale, or not verifiable?
+- Which relationships cross domain boundaries?
+
+## Operating modes
+
+| Mode | Use when | Result |
 | --- | --- | --- |
-| **Map** | No MoF, it's stale, or a change just landed | Incremental discovery: inventory → domains → responsibilities → functions (grouped by code artifact, with a computed SRP status) → relationships → entities/events → impact rules, validating with you each cycle. After a landed change, the same cycle runs scoped to what it touched. Ends by regenerating the Impact Index. Past ~800 lines the map splits by domain — but the index stays whole in `docs/MOF.md`. |
-| **Query** | You're about to change code that touches logic, contracts, or behavior | Reads the Impact Index alone, locates the responsibilities you're touching, freshness-checks only *their* files against git, then traverses the graph to depth 2 (deeper only along critical edges). Fans out through shared entities and events, and through Functions flagged as SRP violations — impact paths a call graph can't see — checks affected workflows, impact rules, and cross-cutting rules, and only then opens the full detail of the responsibilities actually in radius. Cosmetic changes skip straight to the edit. |
-| **Visualize** | You ask to see the MoF as a diagram, or for an SRP checkup | Fills a fixed page shell into `docs/MOF.html`: a Mermaid graph grouped by domain, each Function as a subgraph holding its Responsibility nodes — a Function carrying more than one Responsibility gets a dashed red border — plus two reference tables (Impact Rules, Functions with their SRP status) underneath. Click a node to jump to its table row; a fixed "↑ Diagram" button brings you back. Opens automatically in your browser when it's done. |
+| **Map** | There is no MoF, the map is stale, or a change landed | Incrementally discovers domains, responsibilities, functions, relationships, entities, events, impact rules, and cross-cutting rules. |
+| **Query** | A change touches logic, contracts, or behavior | Reads `mof_meta` and `impact_index` first, verifies freshness, calculates the impact radius, and reports evidence paths before details. |
+| **Visualize** | A professional needs a quick human-readable report | Generates `docs/MOF.html`, a dependency-free technical report with domain-aware relationship tables, local search, and print styles. |
 
-Every item gets a collision-safe ID: Responsibilities use `RESP_<DOMAIN>_<NNN>` and Functions use `F_<DOMAIN>_<NNN>` (e.g. `F_BILLING_003`) so two sessions mapping different domains never collide; everything else uses a simple `<PREFIX>_<NNN>` — always the next free number, never reused.
+Cosmetic changes such as formatting, comments, or documentation typos can skip Query.
 
-### Why the Impact Index exists
+## Query behavior
 
-A blast-radius query needs a small slice of what a MoF knows: who calls whom, which entities and events a responsibility touches, which rules fire, whether its function carries other responsibilities too. It does not need every responsibility's full prose. So the map carries a one-line-per-responsibility index at the top, projected from the sections below it, and Query reads *only that* — descending into a responsibility's full block once it's already in radius. On a 40-responsibility map that's ~40 lines read instead of ~1000.
+Query is the reasoning layer of the skill. It does not stop at direct callers. Starting from the change's seed, it checks:
 
-`relationships[]` stays the source of truth for every edge; the index is a derived projection, regenerated by Map, never hand-edited on its own.
+```text
+metadata and Impact Index
+→ freshness evidence
+→ downstream calls
+→ shared entities
+→ published and consumed events
+→ shared-code exposure and SRP
+→ affected workflows
+→ impact rules
+→ cross-cutting rules
+→ details inside the computed radius
+```
+
+The result must state the responsibilities involved, blast radius, traversal depth, paths reached through state or events, workflows, impact rules, cross-cutting rules, intended actions, and evidence status.
+
+Freshness uses both commit and timestamp evidence:
+
+```text
+fresh       relevant code is covered by the recorded map commit and timestamp
+stale       relevant code changed after the recorded map evidence
+unverified  the path, commit, timestamp, or relationship cannot be proved
+unresolved  a referenced item is missing from the map and must not be silently dropped
+```
+
+## MoF document
+
+The source of truth is `docs/MOF.md`, structured as Markdown with YAML blocks:
+
+- `mof_meta` — identity, version, update timestamp, commit, and domains;
+- `impact_index` — compact traversal projection;
+- `responsibilities` — atomic reasons to change;
+- `functions` — code artifacts grouping responsibilities and exposing SRP status;
+- `entities` and `events` — state paths invisible to a direct call graph;
+- `workflows` — end-to-end sequences;
+- `relationships` — the single source of truth for edges;
+- `impact_rules` and `cross_cutting` — required review actions and shared constraints;
+- `open_questions` and revision history — visible uncertainty and traceability.
+
+When the map is split, `docs/MOF.md` owns the complete Impact Index, metadata, cross-domain relationships, global rules, open questions, and revision history. `docs/mof/<domain>.md` owns local domain content. A Responsibility has exactly one home.
 
 ## Example prompts
 
-- "Create a MoF for this project"
-- "What breaks if I change the invoice approval flow?"
-- "Assess the blast radius of renaming this endpoint"
-- "Update the MOF.md after this refactor"
-- "Show me the MoF as a diagram"
-- "Check this codebase for Single Responsibility violations"
+```text
+Create a MoF for this project, starting with the billing domain.
+```
 
-## Make it fire automatically
+```text
+What is the blast radius of changing the invoice approval contract?
+```
 
-The skill's description asks the agent to consult an existing MoF proactively, but a description can only be a hint. To make it reliable, add one line to your project's `CLAUDE.md`:
+```text
+Generate the MoF technical report.
+```
+
+## Installation
+
+Install the MoF for Claude Code and Codex with one command:
+
+```bash
+npx skills add filhodoed/skills --skill mof --agent claude-code --agent codex --global
+```
+
+Use `--agent gemini-cli` when that target is available in the installed `skills` CLI. Use `--yes` for non-interactive installation.
+
+To install the current development branch before it reaches the default branch:
+
+```bash
+npx skills add https://github.com/filhodoed/skills/tree/dev/skills/mof --skill mof --agent codex --global --yes
+```
+
+Manual fallback: copy or link this directory to the target agent's skills directory. The `npx skills` installer can support additional agents beyond the three documented here.
+
+## Reliable activation
+
+Skill descriptions help discovery, but project instructions make consultation consistent. Add this line to the instruction file used by the agent:
 
 ```markdown
 Read `docs/MOF.md` before any change to logic, contracts, or behavior. Start at its Impact Index.
 ```
 
-That line is loaded on every session in that project, so it doesn't depend on the agent guessing.
+Use `CLAUDE.md` for Claude Code, `AGENTS.md` for Codex, and the project instruction mechanism supported by Gemini CLI.
 
-## Try it without installing the plugin
+## Technical report
 
-```bash
-(mkdir -p .claude/skills/mof && cd .claude/skills/mof \
-  && for f in SKILL.md mof-template.md visualization.md mof-shell.html; do \
-       curl -fsSLO "https://raw.githubusercontent.com/filhodoed/skills/main/skills/mof/$f"; \
-     done)
-```
+`docs/MOF.html` is an optional projection for human technical review, not part of the agent's Query flow. It contains:
 
-## Note on the HTML view
+- metadata and summary counts;
+- domains, functions, responsibilities, and SRP status;
+- technical relationships with source domain, destination domain, relation, coupling, channel, criticality, and details;
+- impact rules and open questions;
+- local relationship search and print-friendly CSS.
 
-`docs/MOF.html` loads Mermaid from jsDelivr at a pinned version, so it needs network access the first time it opens. That's the skill's only external dependency — vendoring ~3 MB of JavaScript would tax every install to serve the offline case. If you need a fully offline artifact, download `mermaid.min.js` next to the HTML and point the `<script src>` at it.
+The report uses only HTML, CSS, and small local JavaScript. It does not require a database, server, Mermaid, CDN, or network access. `docs/MOF.md` remains the only source of truth.
+
+## Principles
+
+- Knowledge before documentation.
+- One fact, one home.
+- Uncertainty is visible.
+- Query is bounded and evidence-based.
+- Markdown/YAML and Git are enough.
+- Human review remains part of the process.
+
+## License
+
+[MIT](../../LICENSE)
