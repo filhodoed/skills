@@ -1,6 +1,6 @@
 {
   "name": "filhodoed-skills",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "Edson Junior's portable Agent Skills — starting with mof: Map of Functions, a living map of a system's functions, dependencies, and blast radius for Claude Code, Codex, and Gemini CLI.",
   "author": {
     "name": "Edson Junior",
