@@ -86,30 +86,21 @@ Generate the MoF technical report.
 
 ## Installation
 
-### Claude Code
-
-Use the repository plugin, or copy this directory to `.claude/skills/mof/`:
-
-```text
-/plugin marketplace add filhodoed/skills
-/plugin install filhodoed-skills@filhodoed
-```
-
-### Codex
-
-Inside Codex, install directly from GitHub:
-
-```text
-$skill-installer install https://github.com/filhodoed/skills/tree/dev/skills/mof
-```
-
-Restart Codex if the skill does not appear immediately. Manual fallback: copy or link this directory to `${CODEX_HOME:-$HOME/.codex}/skills/mof/`.
-
-### Gemini CLI
+Install the MoF for Claude Code and Codex with one command:
 
 ```bash
-gemini skills link ./skills/mof
+npx skills add filhodoed/skills --skill mof --agent claude-code --agent codex --global
 ```
+
+Use `--agent gemini-cli` when that target is available in the installed `skills` CLI. Use `--yes` for non-interactive installation.
+
+To install the current development branch before it reaches the default branch:
+
+```bash
+npx skills add https://github.com/filhodoed/skills/tree/dev/skills/mof --skill mof --agent codex --global --yes
+```
+
+Manual fallback: copy or link this directory to the target agent's skills directory. The `npx skills` installer can support additional agents beyond the three documented here.
 
 ## Reliable activation
 

@@ -36,11 +36,11 @@ The HTML report uses only HTML, CSS, and small local JavaScript. It has no datab
 
 The skill core follows the portable `SKILL.md` format. Installation and activation are platform-specific, but the MoF method and `docs/MOF.md` contract remain the same.
 
-| Agent | Installation | Project instruction |
+| Agent | Target | Project instruction |
 | --- | --- | --- |
-| Claude Code | Plugin or `.claude/skills/mof/` | `CLAUDE.md` |
-| Codex | `$CODEX_HOME/skills/mof/` or `~/.codex/skills/mof/` | `AGENTS.md` |
-| Gemini CLI | `gemini skills link ./skills/mof` | Project instructions supported by Gemini CLI |
+| Claude Code | `.claude/skills/` | `CLAUDE.md` |
+| Codex | `${CODEX_HOME:-$HOME/.codex}/skills/` | `AGENTS.md` |
+| Gemini CLI | Agent Skills directory | Project instructions supported by Gemini CLI |
 
 Add this line to the project's instruction file so the map is consulted consistently:
 
@@ -50,30 +50,21 @@ Read `docs/MOF.md` before any change to logic, contracts, or behavior. Start at 
 
 ## Installation
 
-### Claude Code plugin
-
-```text
-/plugin marketplace add filhodoed/skills
-/plugin install filhodoed-skills@filhodoed
-```
-
-### Codex
-
-Inside Codex, install the skill directly from this repository:
-
-```text
-$skill-installer install https://github.com/filhodoed/skills/tree/dev/skills/mof
-```
-
-Restart Codex if the skill does not appear immediately. The installer places it under `${CODEX_HOME:-$HOME/.codex}/skills/mof/`.
-
-For a manual installation, copy or link `skills/mof/` into that same directory.
-
-### Gemini CLI
+Install the MoF for one or more supported agents:
 
 ```bash
-gemini skills link ./skills/mof
+npx skills add filhodoed/skills --skill mof --agent claude-code --agent codex --global
 ```
+
+Use `--agent gemini-cli` when that target is available in the installed `skills` CLI. Use `--yes` for non-interactive installation.
+
+To test the development branch before it reaches the default branch:
+
+```bash
+npx skills add https://github.com/filhodoed/skills/tree/dev/skills/mof --skill mof --agent codex --global --yes
+```
+
+The manual fallback is to copy or link `skills/mof/` into the target agent's skills directory. The `npx skills` installer is maintained separately from this repository and may support more agents than those listed here.
 
 ### Single-skill copy
 
