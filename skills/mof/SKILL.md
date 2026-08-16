@@ -105,6 +105,8 @@ Mandatory before proposing any code change that touches logic, contracts, or beh
 10. **Derive actions:** tests to update, contracts to review, documentation and ADRs to create.
 11. **Only then** propose the code, respecting each Responsibility's `responsibilities` and `non_responsibilities`.
 
+The Query result must distinguish verified facts from assumptions and report the evidence path for every item added to the radius. If a relationship references a missing Responsibility, entity, event, workflow, or rule, preserve the identifier and mark it `unresolved` rather than silently dropping it.
+
 If the task touches code absent from the MoF, run a mini Map cycle for it first.
 
 ### Agent response pattern
@@ -118,6 +120,7 @@ Make the plan explicit:
 - **Workflows affected:** `W_...`
 - **Impact rules triggered:** `IR_...`
 - **Cross-cutting rules in play:** which, and how the change satisfies them
+- **Evidence status:** `verified`, `unverified`, or `unresolved` for each relationship path
 - **Intended actions:** tests, contracts, documentation
 
 ---

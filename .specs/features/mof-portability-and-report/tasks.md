@@ -84,6 +84,8 @@ T1 → T2 → T3 → T4 → T5 → T6 → T7
 **Tests**: Targeted structural assertions for all required response fields.
 **Gate**: Quick
 
+**Status**: Done — commit pending
+
 ### T4: Replace Mermaid shell with technical tables
 
 **What**: Replace the visualization shell with native HTML/CSS/JavaScript showing metadata, summaries, domains, functions, responsibilities, relationships, impact rules, open questions, search, empty states, and print rules.
