@@ -4,6 +4,21 @@ All notable changes to this project are documented here. Format follows [Keep a 
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-08-16
+
+### Added
+
+- `mof`: responsive HTML report layouts for desktop, tablet, mobile, and print.
+- `mof`: clickable filters for functions, technical relationships, and impact rules, including dynamic domain filters.
+- `mof`: repeated-file, SRP, risk, relationship, and impact-type segmentation in the report.
+- `mof`: footer legend for the abbreviations used by the report.
+
+### Fixed
+
+- `mof`: visualization instructions now require a structural post-generation check for the new filter controls, responsive shell, and abbreviation legend.
+
+## [0.6.0] - 2026-08-15
+
 ### Added
 
 - `mof`: evidence-based freshness metadata with commit and timestamp support, deterministic Query evidence states, explicit split-map ownership, and a native HTML technical report with domain-aware relationship tables, local search, and print styles.
