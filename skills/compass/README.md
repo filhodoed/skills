@@ -35,6 +35,30 @@ We just shipped the v2 release — audit the docs against what actually changed.
 Is the README still accurate?
 ```
 
+## Daily use
+
+Compass is designed to run at meaningful project checkpoints, such as after a release, architecture change, implementation milestone, or important decision.
+
+In environments with an end-of-session hook, users can define the keywords or phrases that signal the end of a work session. When one of those triggers is detected, the hook can start Compass and run the following workflow:
+
+1. Compass identifies the project's context document, agent instruction file, and README that should be audited.
+2. Compass compares those documents with real evidence, such as Git history, decision records, releases, and session notes.
+3. Compass presents its findings and proposed changes for approval, applies only the approved edits, verifies the result, and reports what was updated or remains pending.
+
+This creates a practical cycle: work during the session, signal its conclusion, review the project's documentation against what actually changed, and leave the project ready for the next session.
+
+Other workflows are possible. Compass can also be run directly whenever documentation may have become stale:
+
+```text
+Is the project documentation still accurate?
+```
+
+```text
+Audit the project documentation against the work completed in this session.
+```
+
+The end-of-session hook is an optional environment integration. It is not required to install or use the portable Compass skill manually.
+
 ## Installation
 
 Install Compass for Claude Code and Codex with one command:
