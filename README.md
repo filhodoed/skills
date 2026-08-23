@@ -20,6 +20,11 @@ Agents can find files quickly, but two other problems keep costing real time: kn
 | --- | --- |
 | [mof](skills/mof/README.md) | Map responsibilities, functions, dependencies, entities, events, workflows, impact rules, and technical relationships before a change. |
 | [compass](skills/compass/README.md) | Audit a project's context documentation, agent instruction file, and README against real evidence, and fix drift with approval. |
+| [memory](skills/memory/README.md) | Record factual project or area session outcomes in one append-only daily memory file. |
+| [digest](skills/digest/README.md) | Consolidate new daily memory records into a sourced incremental digest. |
+| [digest-refine](skills/digest-refine/README.md) | Curate the digest and promote surviving durable knowledge to semantic memory. |
+
+The memory pipeline is intentionally staged: `memory` records facts, `digest` consolidates them, and `digest-refine` curates and promotes approved knowledge to the vector database. Each stage has its own contract and can be installed independently.
 
 ## Supported agents
 
@@ -38,11 +43,14 @@ Install a skill for one or more supported agents:
 ```bash
 npx skills add filhodoed/skills --skill mof --agent claude-code --agent codex --global
 npx skills add filhodoed/skills --skill compass --agent claude-code --agent codex --global
+npx skills add filhodoed/skills --skill memory --agent claude-code --agent codex --global
+npx skills add filhodoed/skills --skill digest --agent claude-code --agent codex --global
+npx skills add filhodoed/skills --skill digest-refine --agent claude-code --agent codex --global
 ```
 
 Use `--agent gemini-cli` when that target is available in the installed `skills` CLI. Use `--yes` for non-interactive installation.
 
-The manual fallback is to copy or link a skill's directory (`skills/mof/`, `skills/compass/`) into the target agent's skills directory. The `npx skills` installer is maintained separately from this repository and may support more agents than those listed here.
+The manual fallback is to copy or link a skill's directory (`skills/mof/`, `skills/compass/`, `skills/memory/`, `skills/digest/`, or `skills/digest-refine/`) into the target agent's skills directory. The `npx skills` installer is maintained separately from this repository and may support more agents than those listed here.
 
 ### Single-skill copy
 
@@ -60,7 +68,16 @@ For a project-local installation, copy the skill's directory to the agent's proj
 │   │   ├── visualization.md
 │   │   ├── mof-shell.html
 │   │   └── test-mof-shell.mjs
-│   └── compass/
+│   ├── compass/
+│   │   ├── SKILL.md
+│   │   └── README.md
+│   ├── memory/
+│   │   ├── SKILL.md
+│   │   └── README.md
+│   ├── digest/
+│   │   ├── SKILL.md
+│   │   └── README.md
+│   └── digest-refine/
 │       ├── SKILL.md
 │       └── README.md
 ├── .claude-plugin/
