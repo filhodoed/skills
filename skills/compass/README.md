@@ -71,12 +71,6 @@ npx skills add filhodoed/skills --skill compass --agent claude-code --agent code
 
 Use `--agent gemini-cli` when that target is available in the installed `skills` CLI. Use `--yes` for non-interactive installation.
 
-To install the current development branch before it reaches the default branch:
-
-```bash
-npx skills add https://github.com/filhodoed/skills/tree/dev/skills/compass --skill compass --agent codex --global --yes
-```
-
 Manual fallback: copy or link this directory to the target agent's skills directory.
 
 ## Principles
