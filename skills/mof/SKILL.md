@@ -15,10 +15,10 @@ Don't confuse it with a navigation map (e.g. a `docs/MOC.md`, Map of Content): t
 
 1. **Knowledge before documentation.** The MoF exists to support reasoning, not to fulfill formality.
 2. **One reason to change, one Responsibility.** A `Responsibility` is the atomic unit — a single verb-object capability with a single reason to change ("Authorize invoice approval", not "Approve invoice" bundling authorization, notification, and audit logging). A `Function` groups the Responsibilities that share one code artifact (`code_ref`); it carries no behavior of its own.
-3. **Incremental discovery.** Incomplete knowledge is acceptable; incorrect assumption is not. Mark uncertainty with `status: unverified`.
+3. **Incremental discovery.** Incomplete knowledge is acceptable; incorrect assumption is not. Mark uncertainty with `status: unverified` and never turn an unverified SRP decision into a definitive status.
 4. **Never invent business rules.** When the code doesn't answer, ask the human. Record the question in `open_questions`.
 5. **Traceability.** Every item has a unique ID; before creating one, grep the MoF for the prefix and use the next free number — never reuse or guess the next one from memory. `Responsibility` (`RESP_<DOMAIN>_<NNN>`) and `Function` (`F_<DOMAIN>_<NNN>`) are domain-scoped so they don't collide across domains mapped in different sessions; other types (`R_`, `IR_`, `EVT_`, `W_`) use a simple sequential `<PREFIX>_<NNN>`.
-6. **One fact, one home.** `relationships[]` is the source of truth for every edge, recorded between Responsibilities. `impact_index` and a Function's `srp_status` are projections of it, regenerated — never hand-edited alone.
+6. **One fact, one home.** `relationships[]` is the source of truth for every edge, recorded between Responsibilities. `impact_index` is a projection of the map, while a Function's `role`, `srp_status`, and `srp_rationale` are projections of its Responsibilities and code evidence; regenerate each projection instead of hand-editing it alone.
 7. **Every section has a reader.** Query names the consumer of every part of the template. Anything you add must earn one.
 8. **Living document.** Every code change triggers a Map review (see Map § After a change lands).
 
@@ -43,7 +43,7 @@ Never build the complete MoF in one pass, whether you're starting from zero or f
 1. **Inventory — session scratch, never written to the file.** Walk the repository structure (directory tree, entry points, routes, handlers, workers, migrations, integration configs) and list every concept found — or, if a change just landed, the files it touched. It exists so nothing is dropped before step 3, and is fully superseded once classified. Concepts you cannot classify go to `open_questions` — there is no permanent inventory section.
 2. **Domains.** Group the inventory into business capabilities. Each Responsibility belongs to exactly one primary domain.
 3. **Responsibilities.** For each code artifact, decompose it into its distinct reasons to change: one `Responsibility` per side effect, business rule, or concern it carries. Fill the registry ([`mof-template.md`](mof-template.md)), starting from entry points and descending through the calls. Prioritize Responsibilities with side effects (database writes, events, external calls) — highest risk. A code artifact that only ever does one thing yields exactly one Responsibility; one that does several yields several, all sharing the same `code_ref`.
-4. **Functions.** Group Responsibilities by shared `code_ref` into `Function` entries. Compute `srp_status`: `ok` when a Function groups exactly one Responsibility, `violation` when it groups two or more — the grouping itself is the Single Responsibility check, not a separate audit.
+4. **Functions.** Group Responsibilities by shared `code_ref` into `Function` entries. Count only reasons for change implemented by that artifact; a call to another Responsibility does not make the caller carry that Responsibility. Record the artifact's `role` (`orchestrator`, `executor`, `mixed`, or `unverified`), compute `srp_status` as `ok` when one reason for change is implemented, `violation` when independent reasons share the artifact, and `unverified` when the evidence is insufficient, then write the `srp_rationale` that explains the decision.
 5. **Relationships.** For each Responsibility, trace in the code what it calls and what calls it. Use reference search, not memory. Record each edge once, in `relationships[]`, between Responsibility ids.
 6. **Entities and events.** Record which Responsibilities read and which modify each entity, which publish and which consume each event. These are the impact paths the call graph cannot see — Query step 4 depends on them.
 7. **Impact rules.** For every Responsibility with 2+ consumers, or with side effects, create an `IR_` rule.
@@ -57,7 +57,7 @@ At the end of each cycle, present a summary of what was mapped and list the `ope
 ### Quality criteria per item
 
 Every **Responsibility** must answer: why it exists; its single reason to change; which domain owns it; which entities it manipulates; which events it consumes and publishes; what breaks if it changes.
-Every **Function** must answer: which Responsibilities it groups, and why its `srp_status` is what it is.
+Every **Function** must answer: which Responsibilities it groups, what role the artifact plays, and why its `srp_status` and `srp_rationale` are what they are.
 Every **Entity** must answer: who owns it; which Responsibilities read it; which modify it.
 Every **Workflow** must answer: which Responsibilities compose it; where it starts; where it ends. Workflows never duplicate Responsibility descriptions — they only sequence them by ID.
 
@@ -73,7 +73,7 @@ When a split map changes, update the owning domain file and the root `docs/MOF.m
 
 Update the owning domain file and the root `docs/MOF.md` when the map is split, or only `docs/MOF.md` when it is not split:
 
-- Affected Responsibilities (their description, interfaces, side effects, state), and the `srp_status` of any Function whose Responsibility count changed
+- Affected Responsibilities (their description, interfaces, side effects, state), and the `role`, `srp_status`, and `srp_rationale` of any affected Function
 - `relationships[]` created, changed, or removed
 - `entities[]` / `events[]` where the change altered who reads, writes, publishes, or consumes
 - Impact rules the change invalidated or created
@@ -89,15 +89,15 @@ The MoF is stale when it no longer reflects the system's behavior. Stale documen
 
 Mandatory before proposing any code change that touches logic, contracts, or behavior. Purely cosmetic changes (typos, formatting, comments, doc text) skip straight to the edit.
 
-**Read `mof_meta` and `impact_index` first, then nothing else.** They carry the freshness and traversal fields this flow needs. Do not load the whole `docs/MOF.md`, and do not open any Responsibility's full block until it is already in the computed radius. This is the flow, not a size-dependent optimization.
+**Read `mof_meta` and `impact_index` first.** They locate seeds, expose freshness evidence, and provide the first traversal projection. Then open only the relevant `relationships[]`, `entities[]`, `events[]`, `workflows[]`, `impact_rules[]`, and `cross_cutting[]` entries needed to complete the radius; do not load the whole `docs/MOF.md`, and do not open any Responsibility's full block until it is already inside the computed radius. This is the flow, not a size-dependent optimization.
 
 1. **Locate the seeds.** Grep `impact_index` for the task's subject: capability name, `code_ref` path, or domain. A `Function` id resolves to every Responsibility it groups.
 2. **Check freshness, scoped to the seeds.** With the seeds' `code_ref` paths known, compare the latest relevant commit with `mof_meta.last_commit` and compare commit timestamps with `mof_meta.last_updated`. Classify each seed as `fresh` when both pieces of evidence are covered, `stale` when relevant code is newer, or `unverified` when a path, commit, or timestamp cannot be proved. Run a mini Map cycle only for a stale seed. Never freshness-check the whole repo — a repo-wide `git log` reports stale after any commit anywhere.
-3. **Traverse the call graph.** From each seed, follow `exp:` (downstream) to **depth 2**. Go deeper along an edge only when its `relationships[].criticality` is `critical`. Record the depth reached. If the radius swallows most of the map, that is a failed query — say so and narrow the change instead of reporting the whole system as affected.
+3. **Traverse the call graph.** From each seed, follow `exp:` (downstream) to **depth 2**. Read the relevant relationship records to determine `criticality`; go deeper along an edge only when it is `critical`. Record the depth reached and the relationship evidence. If the radius swallows most of the map, that is a failed query — say so and narrow the change instead of reporting the whole system as affected.
 4. **Fan out through state** — two paths the call graph cannot see:
-   - **Entities.** For each in-radius Responsibility writing an entity (`ent:` marked `(w)`), add every Responsibility that reads it. A writer's behavior change breaks its readers with no call edge between them.
-   - **Events.** For each in-radius Responsibility publishing an event (`evt:` marked `+`), add that event's `consumed_by`. Loose coupling still transmits breakage.
-5. **Check shared-code exposure.** Look at `srp:` on each in-radius line. A `violation` means the Responsibility physically shares a code artifact with siblings that have no logical edge to it — changing one risks breaking the other with nothing in `relationships[]` to warn you. Pull in those siblings for review even though the graph is silent about them.
+   - **Entities.** For each in-radius Responsibility writing an entity (`ent:` marked `(w)`), read the relevant entity record and add every Responsibility that reads it. A writer's behavior change breaks its readers with no call edge between them.
+   - **Events.** For each in-radius Responsibility publishing an event (`evt:` marked `+`), read the relevant event record and add its `consumed_by`. Loose coupling still transmits breakage.
+5. **Check shared-code exposure.** Look at `srp:` on each in-radius line. A `violation` means the Responsibility physically shares a code artifact with siblings that implement independent reasons for change; an `unverified` status means that exposure cannot yet be trusted. Pull the Function's siblings into review and report the evidence instead of inferring a violation.
 6. **Check workflows.** Any `workflows[]` whose `sequence` contains an in-radius Responsibility needs end-to-end review — a change can be locally correct and still break the flow's contract.
 7. **Apply impact rules.** Take the `ir:` ids from each in-radius index line and read those rules. Their `recommended_actions` are required work, not suggestions.
 8. **Apply cross-cutting rules.** Check `cross_cutting` for rules binding the in-radius Responsibilities. A change that satisfies its Responsibility and violates a cross-cutting rule is a defect.
@@ -116,7 +116,8 @@ Make the plan explicit:
 - **Responsibilities involved:** `RESP_...`, grouped under their `F_...`
 - **Blast radius:** downstream Responsibilities requiring review, and the **traversal depth reached**
 - **Reached via state:** Responsibilities pulled in by entity or event fan-out, not by a call edge
-- **Shared-code exposure:** sibling Responsibilities pulled in by a `srp_status: violation`, not by any edge
+- **Shared-code exposure:** sibling Responsibilities pulled in by a `srp_status: violation` or `unverified`, not by any edge
+- **SRP decision:** `role`, `srp_status`, `srp_rationale`, and the evidence supporting the classification
 - **Workflows affected:** `W_...`
 - **Impact rules triggered:** `IR_...`
 - **Cross-cutting rules in play:** which, and how the change satisfies them
@@ -129,7 +130,7 @@ Make the plan explicit:
 
 Only on explicit user request ("visualize the MoF", "generate the technical report", "check for SRP violations", "audit the map") — never automatically after Map. Generating the HTML on every code change would add noise and unnecessary work.
 
-Produces `docs/MOF.html`: a static technical report with metadata, domains, functions, responsibilities, technical relationships, impact rules, open questions, local search, and print-friendly CSS. A request framed as a checkup or audit gets the same output — the Functions table's `srp_status` and the relationship/impact tables provide the audit view. The page shell is a fixed asset ([`mof-shell.html`](mof-shell.html)) that you copy and fill at its markers — never retype it. Fill procedure: [`visualization.md`](visualization.md).
+Produces `docs/MOF.html`: a static technical report with metadata, section navigation, global search, investigation focus, domains, functions, responsibilities, technical relationships, entities, events, workflows, impact rules, cross-cutting rules, open questions, and print-friendly CSS. A request framed as a checkup or audit gets the same output — the Functions table's `role`, `srp_status`, and `srp_rationale` provide the SRP decision view. The page shell is a fixed asset ([`mof-shell.html`](mof-shell.html)) that you copy and fill at its markers — never retype it. Fill procedure: [`visualization.md`](visualization.md).
 
 ---
 

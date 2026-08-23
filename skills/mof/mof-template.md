@@ -6,20 +6,20 @@ Every section below has a named consumer in Query. Nothing here is decorative; d
 
 ## The `impact_index` line format
 
-The index is what Query reads instead of the whole document — one line per Responsibility, all of it projected from the sections further down. Regenerate a line whenever its source data changes; never edit it as if it were the source.
+The index is Query's first projection, not a replacement for every source section — one line per Responsibility, with the fields needed to locate seeds and begin traversal. Regenerate a line whenever its source data changes; never edit it as if it were the source.
 
 ```
-RESP_<ID> | fn:F_<ID> | <code_ref> | dom:<DOMAIN> | dep:<upstream ids> | exp:<downstream ids> | ent:<Entity(r|w)> | evt:+<published> -<consumed> | ir:<rule ids> | srp:<ok|violation>
+RESP_<ID> | fn:F_<ID> | <code_ref> | dom:<DOMAIN> | dep:<upstream ids> | exp:<downstream ids> | ent:<Entity(r|w)> | evt:+<published> -<consumed> | ir:<rule ids> | srp:<ok|violation|unverified>
 ```
 
 | Field  | Projected from                                             | Read by Query                          |
 | ------ | ------------------------------------------------------------ | ---------------------------------------- |
 | `fn:`  | `functions[]` whose `responsibilities[]` contains this id   | step 1 (locate), step 5 (shared-code exposure) |
 | `dom:` | `responsibilities[].domain`                                 | step 1 (locate)                         |
-| `dep:` | `relationships[]` where `to` = this responsibility          | step 3 (upstream trace)                 |
-| `exp:` | `relationships[]` where `from` = this responsibility        | step 3 (radius)                         |
-| `ent:` | `entities[].read_by` / `.modified_by`                       | step 4 (state fan-out)                  |
-| `evt:` | `events[].published_by` / `.consumed_by`                    | step 4 (state fan-out)                  |
+| `dep:` | `relationships[]` where `to` = this responsibility          | step 3 (initial upstream trace)         |
+| `exp:` | `relationships[]` where `from` = this responsibility        | step 3 (initial radius)                 |
+| `ent:` | `entities[].read_by` / `.modified_by`                       | step 4 (locate relevant entity records) |
+| `evt:` | `events[].published_by` / `.consumed_by`                    | step 4 (locate relevant event records)  |
 | `ir:`  | `impact_rules[].trigger.responsibility_id`                   | step 7 (rules)                          |
 | `srp:` | `functions[].srp_status` of `fn:`                            | step 5 (shared-code exposure)           |
 
@@ -85,8 +85,8 @@ Edges are not repeated here — they live in `relationships[]` and reach Query t
 ## Functions
 
 ```yaml
-# Derived grouping — regenerate domain and srp_status from responsibilities[]
-# below, never hand-edit either alone. domain must equal the domain shared by
+# Derived grouping — regenerate domain, role, srp_status, and srp_rationale from
+# responsibilities[] below and code evidence; never hand-edit them alone. Domain must equal the domain shared by
 # every listed Responsibility; if they disagree, the code artifact spans two
 # domains and that disagreement belongs in open_questions, not a silent pick.
 functions:
@@ -94,8 +94,10 @@ functions:
     name: "<short label for the code artifact, e.g. approve_invoice>"
     domain: "<DOMAIN>"
     code_ref: "<real file/class/method, e.g. src/billing/approve.py:approve_invoice>"
-    responsibilities: ["RESP_<ID>"] # one entry = srp_status ok, two or more = violation
-    srp_status: "ok | violation"
+    responsibilities: ["RESP_<ID>"]
+    role: "orchestrator | executor | mixed | unverified"
+    srp_status: "ok | violation | unverified"
+    srp_rationale: "<evidence-based explanation of the SRP decision; distinguish coordination from independent reasons for change>"
 ```
 
 ## Entities
