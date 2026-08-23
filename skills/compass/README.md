@@ -60,6 +60,10 @@ Manual fallback: copy or link this directory to the target agent's skills direct
 - Every change is proposed, never applied silently.
 - A locked or protected repository is a signal to stop, not to work around.
 
+## Status
+
+Compass is maintained as a portable skill that audits project documentation against real evidence and applies only approved changes. See the repository [CHANGELOG.md](../../CHANGELOG.md) for release history.
+
 ## License
 
 [MIT](../../LICENSE)
