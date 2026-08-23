@@ -112,6 +112,10 @@ Read `docs/MOF.md` before any change to logic, contracts, or behavior. Start at 
 
 Use `CLAUDE.md` for Claude Code, `AGENTS.md` for Codex, and the project instruction mechanism supported by Gemini CLI.
 
+## Status
+
+The MoF is maintained as a portable skill with evidence-based freshness checks, deterministic Query evidence states, split-map ownership rules, and a dependency-free technical HTML report. See the repository [CHANGELOG.md](../../CHANGELOG.md) for release history.
+
 ## Technical report
 
 `docs/MOF.html` is an optional projection for human technical review, not part of the agent's Query flow. It contains:
