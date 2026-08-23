@@ -21,8 +21,8 @@ The MoF helps answer questions such as:
 | Mode | Use when | Result |
 | --- | --- | --- |
 | **Map** | There is no MoF, the map is stale, or a change landed | Incrementally discovers domains, responsibilities, functions, relationships, entities, events, impact rules, and cross-cutting rules. |
-| **Query** | A change touches logic, contracts, or behavior | Reads `mof_meta` and `impact_index` first, verifies freshness, calculates the impact radius, and reports evidence paths before details. |
-| **Visualize** | A professional needs a quick human-readable report | Generates `docs/MOF.html`, a dependency-free technical report with domain-aware relationship tables, local search, and print styles. |
+| **Query** | A change touches logic, contracts, or behavior | Reads `mof_meta` and `impact_index` first, opens only the source sections needed to complete traversal, verifies freshness, calculates the impact radius, and reports evidence paths before details. |
+| **Visualize** | A professional needs a human investigation report | Generates `docs/MOF.html`, a dependency-free technical workbench with section navigation, global search, Responsibility focus, cross-section references, local filters, and print styles. |
 
 Cosmetic changes such as formatting, comments, or documentation typos can skip Query.
 
@@ -61,7 +61,7 @@ The source of truth is `docs/MOF.md`, structured as Markdown with YAML blocks:
 - `mof_meta` — identity, version, update timestamp, commit, and domains;
 - `impact_index` — compact traversal projection;
 - `responsibilities` — atomic reasons to change;
-- `functions` — code artifacts grouping responsibilities and exposing SRP status;
+- `functions` — code artifacts grouping responsibilities, their role, SRP status, and the rationale for that status;
 - `entities` and `events` — state paths invisible to a direct call graph;
 - `workflows` — end-to-end sequences;
 - `relationships` — the single source of truth for edges;
@@ -118,13 +118,14 @@ The MoF is maintained as a portable skill with evidence-based freshness checks, 
 
 ## Technical report
 
-`docs/MOF.html` is an optional projection for human technical review, not part of the agent's Query flow. It contains:
+`docs/MOF.html` is an optional projection for human technical investigation, not part of the agent's Query flow. It contains:
 
-- metadata and summary counts;
-- domains, functions, responsibilities, and SRP status;
+- persistent section navigation, global search, and a Responsibility investigation focus;
+- metadata, summary counts, and explicit evidence states;
+- domains, functions, responsibilities, Function role, SRP status, and SRP rationale;
 - technical relationships with source domain, destination domain, relation, coupling, channel, criticality, and details;
-- impact rules and open questions;
-- local relationship search, responsive viewport layouts, abbreviation legend, and print-friendly CSS.
+- entities, events, workflows, impact rules, cross-cutting rules, and open questions;
+- local filters, cross-section focus references, responsive layouts, abbreviation legend, and print-friendly CSS.
 
 The report uses only HTML, CSS, and small local JavaScript. It does not require a database, server, Mermaid, CDN, or network access. `docs/MOF.md` remains the only source of truth.
 

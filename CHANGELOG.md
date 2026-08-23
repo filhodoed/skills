@@ -4,6 +4,16 @@ All notable changes to this project are documented here. Format follows [Keep a 
 
 ## [Unreleased]
 
+## [0.10.0] - 2026-08-23
+
+### Changed
+
+- `mof`: Query now treats `mof_meta` and `impact_index` as the first traversal projection, then opens only the relevant source sections needed for relationship, entity, event, workflow, impact-rule, and cross-cutting analysis.
+- `mof`: Function mapping now records the artifact role, distinguishes independent reasons for change from delegated calls, and preserves `srp_rationale` plus `unverified` status when evidence is insufficient.
+- `mof`: the technical report shell now provides persistent section navigation, global search, Responsibility focus, cross-section references, entities, events, workflows, cross-cutting rules, and explicit SRP decision fields.
+- `mof`: fixed the HTML report navigation selecting an apparently random section after clicking a left-rail item by making active-section resolution deterministic.
+- `mof`: the HTML report now activates the last navigation section when the viewport reaches the bottom of the document, even when that section cannot reach the header.
+
 ## [0.9.0] - 2026-08-22
 
 ### Changed
@@ -17,8 +27,6 @@ All notable changes to this project are documented here. Format follows [Keep a 
 - `compass` skill: audits a project's context documentation, agent instruction file, and README against real evidence (git log, decision records, session notes), and fixes drift only with explicit approval, one finding at a time.
 
 ## [0.7.1] - 2026-08-16
-
-### Fixed
 
 - `mof`: generated reports now occupy the viewport, preserve filter and status chips on one line, and filter repeated files from explicit function `code_ref` values.
 - `mof`: relationship search now composes with active filters, while relation, function, and impact filters inspect only their respective table columns.
