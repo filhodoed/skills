@@ -124,6 +124,12 @@ Use `CLAUDE.md` for Claude Code, `AGENTS.md` for Codex, and the project instruct
 
 The report uses only HTML, CSS, and small local JavaScript. It does not require a database, server, Mermaid, CDN, or network access. `docs/MOF.md` remains the only source of truth.
 
+Validate the report shell and its filter regressions with:
+
+```bash
+node skills/mof/test-mof-shell.mjs
+```
+
 ## Principles
 
 - Knowledge before documentation.
