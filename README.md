@@ -58,11 +58,20 @@ For a project-local installation, copy the skill's directory to the agent's proj
 │   │   ├── README.md
 │   │   ├── mof-template.md
 │   │   ├── visualization.md
-│   │   └── mof-shell.html
+│   │   ├── mof-shell.html
+│   │   └── test-mof-shell.mjs
 │   └── compass/
 │       ├── SKILL.md
 │       └── README.md
 ├── .claude-plugin/
+│   ├── marketplace.json
+│   └── plugin.json
+├── .specs/
+│   └── features/
+│       └── mof-portability-and-report/
+│           ├── spec.md
+│           ├── tasks.md
+│           └── validation.md
 ├── CHANGELOG.md
 └── LICENSE
 ```

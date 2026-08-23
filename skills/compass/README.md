@@ -2,9 +2,9 @@
 
 An outdated document is worse than no document: it makes an agent reason about a state that no longer exists.
 
-Compass is a portable Agent Skill for Claude Code, Codex, and Gemini CLI. It audits a project's context documentation — its context doc, agent instruction file, and README — against real evidence, and fixes drift with the user's approval, never silently.
+Compass is a portable Agent Skill for Claude Code, Codex, and Gemini CLI. It audits project documentation against available evidence, applies only approved changes, and records audit history.
 
-It is not a navigation map or a scaffolding tool. Compass only checks whether existing prose still matches reality.
+It is not a navigation map or a scaffolding tool. Compass does not create documentation files without the user's approval.
 
 ## What it checks
 
@@ -14,10 +14,10 @@ It is not a navigation map or a scaffolding tool. Compass only checks whether ex
 
 ## How it works
 
-1. **Find the target files.** Compass never assumes a filename by convention — it asks which document is the project's source of truth, unless an agent instruction file already points to one.
-2. **Gather evidence.** Git log since the document's last "Updated on" date, tags, decision records (ADRs, RFCs), and any session/work notes that hold findings never promoted to the target documents.
+1. **Find the target files.** Compass inspects `CLAUDE.md`, `AGENTS.md`, `README.md`, `docs/project-context.md`, and `docs/compass-audit.md` in the project `cwd`.
+2. **Gather evidence.** Compass compares those files with Git state and history, local tags, and explicit evidence supplied by the user.
 3. **Ask before touching anything.** Each finding is presented with the current text, the evidence, and a suggestion — never applied without approval.
-4. **Apply only the approved edits**, stamp the audit date, and — for a README on a protected branch — open a PR instead of pushing directly.
+4. **Apply only the approved edits**, update the mutable project context, append the audit record, and follow the repository's Git policy.
 5. **Verify** every edit against what was actually approved, not the original suggestion.
 6. **Report** what was confirmed, what changed, and what's still pending.
 
@@ -41,8 +41,8 @@ Compass is designed to run at meaningful project checkpoints, such as after a re
 
 In environments with an end-of-session hook, users can define the keywords or phrases that signal the end of a work session. When one of those triggers is detected, the hook can start Compass and run the following workflow:
 
-1. Compass identifies the project's context document, agent instruction file, and README that should be audited.
-2. Compass compares those documents with real evidence, such as Git history, decision records, releases, and session notes.
+1. Compass identifies the allowed project files and their roles.
+2. Compass compares those files with Git state and history, local tags, and explicit evidence supplied by the user.
 3. Compass presents its findings and proposed changes for approval, applies only the approved edits, verifies the result, and reports what was updated or remains pending.
 
 This creates a practical cycle: work during the session, signal its conclusion, review the project's documentation against what actually changed, and leave the project ready for the next session.
@@ -58,6 +58,8 @@ Audit the project documentation against the work completed in this session.
 ```
 
 The end-of-session hook is an optional environment integration. It is not required to install or use the portable Compass skill manually.
+
+If `docs/project-context.md` or `docs/compass-audit.md` is missing, Compass explains the purpose of the file and asks for approval before creating it.
 
 ## Installation
 
@@ -83,6 +85,7 @@ Manual fallback: copy or link this directory to the target agent's skills direct
 - Never invent a fact without evidence.
 - Every change is proposed, never applied silently.
 - A locked or protected repository is a signal to stop, not to work around.
+- Audit history records metadata and file paths, not full document contents.
 
 ## Status
 

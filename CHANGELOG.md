@@ -4,6 +4,10 @@ All notable changes to this project are documented here. Format follows [Keep a 
 
 ## [Unreleased]
 
+### Changed
+
+- `compass`: narrowed the default documentation scope to five explicit files, added canonical project context and append-only audit history, session and timestamp metadata, approval-gated file creation, Git and no-Git workflows, per-file hashes, collision handling, and rollback references.
+
 ## [0.8.0] - 2026-08-22
 
 ### Added
