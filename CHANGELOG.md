@@ -4,6 +4,8 @@ All notable changes to this project are documented here. Format follows [Keep a 
 
 ## [Unreleased]
 
+## [0.10.0] - 2026-08-23
+
 ### Changed
 
 - `mof`: Query now treats `mof_meta` and `impact_index` as the first traversal projection, then opens only the relevant source sections needed for relationship, entity, event, workflow, impact-rule, and cross-cutting analysis.
