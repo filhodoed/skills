@@ -4,6 +4,12 @@ All notable changes to this project are documented here. Format follows [Keep a 
 
 ## [Unreleased]
 
+### Added
+
+- `memory`: initial portable contract for append-only daily session records, without Claude- or workspace-specific dependencies.
+- `digest`: initial portable contract for incremental, sourced consolidation of daily memory records.
+- `digest-refine`: initial portable contract for digest curation and approved semantic-memory promotion.
+
 ## [0.10.0] - 2026-08-23
 
 ### Changed
