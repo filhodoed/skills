@@ -9,14 +9,15 @@
     {
       "name": "filhodoed-skills",
       "source": "./",
-      "description": "Public agent skills — starting with mof: Map of Functions, a living map of a system's functions, dependencies, and blast radius that agents consult before changing code.",
+      "description": "Public agent skills — mof: Map of Functions, a living map of a system's functions, dependencies, and blast radius that agents consult before changing code; compass: audits project documentation against real evidence.",
       "category": "engineering",
       "keywords": [
         "map-of-functions",
         "blast-radius",
         "impact-analysis",
         "architecture",
-        "documentation"
+        "documentation",
+        "documentation-audit"
       ]
     }
   ]
