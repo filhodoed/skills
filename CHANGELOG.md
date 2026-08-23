@@ -4,6 +4,8 @@ All notable changes to this project are documented here. Format follows [Keep a 
 
 ## [Unreleased]
 
+## [0.11.0] - 2026-08-23
+
 ### Added
 
 - `memory`: initial portable contract for append-only daily session records, without Claude- or workspace-specific dependencies.
