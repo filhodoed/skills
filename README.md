@@ -8,21 +8,18 @@
 
 Reusable skills for coding agents, built around clear reasoning, bounded impact analysis, and low-friction adoption in real repositories.
 
-The first skill is the **Map of Functions (MoF)**, a living technical map that helps an agent understand what depends on a responsibility before changing logic, contracts, or behavior.
-
-> Before changing a function, know who depends on it and what can break.
+> Before changing a function, know who depends on it and what can break. Before trusting a document, know if it's still true.
 
 ## Why this exists
 
-Agents can find files quickly, but finding the right blast radius requires more than text search. A change can affect direct callers, shared entities, published events, workflows, shared code, cross-cutting rules, and contracts that are not visible in a simple call graph.
+Agents can find files quickly, but two other problems keep costing real time: knowing the blast radius of a change before making it, and knowing whether the documentation guiding that change is still accurate. Each skill here targets one of those gaps with a versioned, human-readable artifact instead of guesswork.
 
-The MoF records those relationships in a versioned Markdown document, then gives the agent a focused Query flow before a change. The result is less guesswork, clearer review, and a technical trail that remains readable by people.
-
-## Included skill
+## Included skills
 
 | Skill | Purpose |
 | --- | --- |
 | [mof](skills/mof/README.md) | Map responsibilities, functions, dependencies, entities, events, workflows, impact rules, and technical relationships before a change. |
+| [compass](skills/compass/README.md) | Audit a project's context documentation, agent instruction file, and README against real evidence, and fix drift with approval. |
 
 The MoF has three operating modes:
 
@@ -32,9 +29,11 @@ The MoF has three operating modes:
 
 The HTML report uses only HTML, CSS, and small local JavaScript. It has no database, server, Mermaid, CDN, or network requirement.
 
+Compass audits a project's documentation in place: it finds the target files, gathers evidence (git log, decision records, session notes), asks before applying anything, and opens a PR instead of pushing directly to a protected branch.
+
 ## Supported agents
 
-The skill core follows the portable `SKILL.md` format. Installation and activation are platform-specific, but the MoF method and `docs/MOF.md` contract remain the same.
+Every skill in this repository follows the portable `SKILL.md` format — one file, YAML frontmatter plus plain-language instructions, no agent-specific syntax. Installation and activation are platform-specific, but each skill's method and its contract (the artifact it maintains, or the flow it follows) remain the same everywhere.
 
 | Agent | Target | Project instruction |
 | --- | --- | --- |
@@ -42,18 +41,21 @@ The skill core follows the portable `SKILL.md` format. Installation and activati
 | Codex | `${CODEX_HOME:-$HOME/.codex}/skills/` | `AGENTS.md` |
 | Gemini CLI | Agent Skills directory | Project instructions supported by Gemini CLI |
 
-Add this line to the project's instruction file so the map is consulted consistently:
+Skill descriptions help discovery, but a line in the project's own instruction file makes consultation reliable — a hint in `SKILL.md` alone is not. For `mof`:
 
 ```markdown
 Read `docs/MOF.md` before any change to logic, contracts, or behavior. Start at its Impact Index.
 ```
 
+`compass` has no equivalent artifact to point to — it runs on request or after a relevant chunk of work, not on every change.
+
 ## Installation
 
-Install the MoF for one or more supported agents:
+Install a skill for one or more supported agents:
 
 ```bash
 npx skills add filhodoed/skills --skill mof --agent claude-code --agent codex --global
+npx skills add filhodoed/skills --skill compass --agent claude-code --agent codex --global
 ```
 
 Use `--agent gemini-cli` when that target is available in the installed `skills` CLI. Use `--yes` for non-interactive installation.
@@ -64,11 +66,11 @@ To test the development branch before it reaches the default branch:
 npx skills add https://github.com/filhodoed/skills/tree/dev/skills/mof --skill mof --agent codex --global --yes
 ```
 
-The manual fallback is to copy or link `skills/mof/` into the target agent's skills directory. The `npx skills` installer is maintained separately from this repository and may support more agents than those listed here.
+The manual fallback is to copy or link a skill's directory (`skills/mof/`, `skills/compass/`) into the target agent's skills directory. The `npx skills` installer is maintained separately from this repository and may support more agents than those listed here.
 
 ### Single-skill copy
 
-For a project-local installation, copy `skills/mof/` to the agent's project skill directory and keep its supporting files beside `SKILL.md`.
+For a project-local installation, copy the skill's directory to the agent's project skill directory and keep its supporting files beside `SKILL.md`.
 
 ## Typical usage
 
@@ -90,6 +92,12 @@ For a human-readable report:
 Generate the MoF technical report.
 ```
 
+To audit documentation against reality:
+
+```text
+Update the project context, it feels stale.
+```
+
 ## Design principles
 
 - **Knowledge before documentation** — the map exists to support reasoning, not formality.
@@ -104,12 +112,15 @@ Generate the MoF technical report.
 ```text
 .
 ├── skills/
-│   └── mof/
+│   ├── mof/
+│   │   ├── SKILL.md
+│   │   ├── README.md
+│   │   ├── mof-template.md
+│   │   ├── visualization.md
+│   │   └── mof-shell.html
+│   └── compass/
 │       ├── SKILL.md
-│       ├── README.md
-│       ├── mof-template.md
-│       ├── visualization.md
-│       └── mof-shell.html
+│       └── README.md
 ├── .claude-plugin/
 ├── CHANGELOG.md
 └── LICENSE
@@ -117,9 +128,9 @@ Generate the MoF technical report.
 
 ## Status
 
-The MoF is the initial skill in this repository. The current development line includes evidence-based freshness checks, deterministic Query evidence states, split-map ownership rules, and a dependency-free technical HTML report.
+`mof` is the original skill in this repository, with evidence-based freshness checks, deterministic Query evidence states, split-map ownership rules, and a dependency-free technical HTML report. `compass` is the second, auditing a project's documentation against real evidence instead of its code's blast radius.
 
-See [CHANGELOG.md](CHANGELOG.md) for the release history and [skills/mof/README.md](skills/mof/README.md) for the complete skill guide.
+See [CHANGELOG.md](CHANGELOG.md) for the release history, [skills/mof/README.md](skills/mof/README.md) and [skills/compass/README.md](skills/compass/README.md) for the complete skill guides.
 
 ## License
 

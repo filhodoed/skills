@@ -4,6 +4,10 @@ All notable changes to this project are documented here. Format follows [Keep a 
 
 ## [Unreleased]
 
+### Added
+
+- `compass` skill: audits a project's context documentation, agent instruction file, and README against real evidence (git log, decision records, session notes), and fixes drift only with explicit approval, one finding at a time.
+
 ## [0.7.1] - 2026-08-16
 
 ### Fixed

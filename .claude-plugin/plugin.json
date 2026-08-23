@@ -1,7 +1,7 @@
 {
   "name": "filhodoed-skills",
   "version": "0.7.1",
-  "description": "Edson Junior's portable Agent Skills — starting with mof: Map of Functions, a living map of a system's functions, dependencies, and blast radius for Claude Code, Codex, and Gemini CLI.",
+  "description": "Edson Junior's portable Agent Skills for Claude Code, Codex, and Gemini CLI — mof (Map of Functions, a living map of a system's functions, dependencies, and blast radius) and compass (documentation audit against real evidence).",
   "author": {
     "name": "Edson Junior",
     "url": "https://github.com/filhodoed"
@@ -13,9 +13,11 @@
     "blast-radius",
     "impact-analysis",
     "architecture",
-    "documentation"
+    "documentation",
+    "documentation-audit"
   ],
   "skills": [
-    "./skills/mof"
+    "./skills/mof",
+    "./skills/compass"
   ]
 }
