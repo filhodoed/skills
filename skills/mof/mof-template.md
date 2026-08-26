@@ -47,7 +47,18 @@ mof_meta:
   domains: ["<DOMAIN_1>", "<DOMAIN_2>"] # stable display order
 ```
 
-When the map is split, this root file is the global source for the complete `impact_index`, cross-domain relationships and impact rules, cross-cutting rules, open questions, and revision history. Domain files own their local Responsibilities, Functions, Entities, Events, and intra-domain Relationships. A Responsibility must appear in exactly one file.
+When the map is split, this root file is the global source for the complete `impact_index`, cross-domain relationships and impact rules, cross-cutting rules, open questions, and revision history. Domain files own their local Responsibilities, Functions, Entities, Events, and intra-domain Relationships. A Responsibility must appear in exactly one file. The root domain registry below is the authoritative ownership map.
+
+## Domain Registry
+
+```yaml
+# Global source of truth for split-map ownership and stable display order.
+domains:
+  - id: "<DOMAIN>"
+    file: "docs/mof/<domain>.md"
+    owner: "<business capability or team>"
+    scope: "<what belongs in this domain>"
+```
 
 ## Impact Index
 

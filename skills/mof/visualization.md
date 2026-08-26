@@ -1,67 +1,65 @@
-# Visualize
+# MoF Visualization Contract
 
-Visualize produces `docs/MOF.html`, a static technical report for human investigation. It is an optional projection of `docs/MOF.md`; the Markdown MoF remains the only source of truth.
+Visualize produces `docs/MOF.html`, a static technical workbench for human investigation. The Markdown MoF remains the only source of truth.
 
-The report is a local technical workbench, not a second application: its interface is navigation, focus, filtering, and evidence disclosure, while all facts still come from the MoF.
+## Report contract
 
-## Output sections
-
-Fill the shell [`mof-shell.html`](mof-shell.html) by replacing these markers:
+Copy [`mof-shell.html`](mof-shell.html) and replace every marker below with escaped values:
 
 | Marker | Source |
 | --- | --- |
 | `{{TITLE}}` | `mof_meta.system_name` |
 | `{{PURPOSE}}` | `mof_meta.purpose` |
 | `{{META}}` | version, freshness, last update, and commit |
-| `{{SUMMARY}}` | counts of domains, responsibilities, impact rules, and SRP violations |
-| `{{FOCUS}}` | initial investigation context; include a visible empty state when no Responsibility is selected |
-| `{{ROWS_DOMAINS}}` | domain projections from responsibilities and functions |
-| `{{ROWS_FUNCTIONS}}` | one `<tr data-file-ref="…" data-refs="…">` per `functions[]` entry, with separate Function, File, Responsibilities, Role, SRP, Rationale, and Risk cells; `data-file-ref` is the escaped physical file path from `code_ref`, without class, method, or line suffixes, and drives the repeated-file filter |
-| `{{ROWS_RELATIONSHIPS}}` | one row per `relationships[]` entry, including both domains; render Coupling and Criticality as `<span class="status">…</span>` chips, adding `critical`, `medium`, or `ok` when the value maps to those states |
-| `{{ROWS_ENTITIES}}` | one row per `entities[]` entry, with owner domain, readers, and modifiers |
-| `{{ROWS_EVENTS}}` | one row per `events[]` entry, with publishers and consumers |
-| `{{ROWS_WORKFLOWS}}` | one row per `workflows[]` entry, with start, end, and Responsibility sequence |
-| `{{ROWS_IMPACT}}` | one row per `impact_rules[]` entry, ordered by risk; render `impact_type` in the Change cell and `risk` in its own `<span class="status">…</span>` Risk cell (`high` = `critical`, `medium` = `medium`, `low` = `ok`) |
-| `{{ROWS_CROSS_CUTTING}}` | one row per `cross_cutting[]` rule, with kind and affected Responsibilities or domains |
-| `{{ROWS_QUESTIONS}}` | one row per `open_questions[]` entry |
+| `{{SUMMARY}}` | map counts and analytics cards |
+| `{{FOCUS}}` | empty or active Function focus card |
+| `{{FOOTER}}` | complete EN-US identifier and status legend |
+| `{{TABS}}` | C-screen evidence tab buttons |
+| `{{ROWS_DOMAINS}}` | domain projections |
+| `{{ROWS_FUNCTIONS}}` | one Function row per `functions[]` entry |
+| `{{ROWS_FUNCTIONS_CONTEXT}}` | informational Function rows for C, without selection controls |
+| `{{ROWS_RELATIONSHIPS}}` | one relationship row per `relationships[]` entry |
+| `{{ROWS_ENTITIES}}` | one row per entity |
+| `{{ROWS_EVENTS}}` | one row per event |
+| `{{ROWS_WORKFLOWS}}` | one row per workflow |
+| `{{ROWS_IMPACT}}` | one row per impact rule, ordered by risk |
+| `{{ROWS_CROSS_CUTTING}}` | one row per cross-cutting rule |
+| `{{ROWS_QUESTIONS}}` | one row per open question, if exposed by the generator |
 
-For every generated row containing a Responsibility, Function, Entity, Event, Workflow, or Impact Rule id, render the id as a `button.data-link` with `data-focus-id`, and add the referenced IDs to the row's space-separated `data-refs` attribute. Escape all values before insertion.
+Function rows must expose an explicit selection control with `data-function-focus`, `data-focus-id`, optional escaped `data-focus-label` and `data-focus-description`, and a space-separated `data-refs` value. Responsibilities, entities, events, workflows, relationships, impact rules, and shared rules are informational rows, not selection controls. Preserve unresolved identifiers and mark them as unresolved.
 
-## Relationship table
+## A/B/C behavior
 
-The relationship table is the primary technical view. It must show source domain, source Responsibility, relationship type, destination domain, destination Responsibility, coupling, channel, criticality, and description. Coupling and criticality use the shared `status` chip; criticality adds the matching semantic color class when available. Preserve unresolved identifiers and mark them as unresolved; never silently omit an edge.
-
-The Functions table is the SRP decision view. It must show the Function, physical file, grouped Responsibilities, `role`, `srp_status`, `srp_rationale`, and risk. A `violation` without a rationale is incomplete; an `unverified` status must remain visible as uncertainty.
+- **A — Select context** shows the Function catalog, four analytics cards, and the focus card. The table supports explicit Select/Deselect controls and sorting by visible columns.
+- **B — Decision overview** shows the selected context, decision cards, and drilldown controls. It does not show a Functions selection chip.
+- **C — Full context** shows domains, Functions, Responsibilities, technical relationships, entities, events, workflows, impact rules, and shared rules. An active Function filters rows through `data-refs`; no active Function shows the complete map.
+- Function focus persists across A, B, and C. `Clear Selection` is the only selection-reset control and appears in each screen header.
+- Global search filters on each input event without replacing the input or losing focus. Clearing the native search control restores rows without clearing Function focus or screen state.
 
 ## Safety and portability
 
-- The generated report uses only HTML, CSS, and small local JavaScript.
+- Use one HTML file with inline CSS and JavaScript only.
 - Do not load Mermaid, a CDN, a remote font, a server, or any network resource.
-- Escape every value from `docs/MOF.md` before inserting it into HTML attributes or markup.
-- Prefer text nodes or escaped strings; never insert untrusted MoF values as executable JavaScript.
-- Keep `docs/MOF.md` as the source of truth and regenerate the report when the map changes.
+- Escape every MoF value before inserting it into markup or attributes.
+- Do not insert untrusted MoF values into executable JavaScript.
 - Empty collections render an explicit `—` or `No items recorded` row.
-- The empty `{{FOCUS}}` marker renders an explicit “Select a Responsibility to investigate” state.
+- Freshness, stale, verified, unverified, and unresolved states remain textual as well as visual.
 
 ## Generation validation
 
-After writing `docs/MOF.html`, verify that the generated file contains the current shell contract before presenting it to the professional:
+After writing `docs/MOF.html`, verify that the generated file contains:
 
-- `id="function-filters"`, `id="relationship-filters"`, and `id="impact-filters"`;
-- `id="global-search"`, `id="focus-context"`, and navigation buttons with `data-section`;
-- `class="legend"` and the abbreviation entries `SRP`, `F_`, `RESP_`, and `IR_`;
-- the responsive media rules, including `max-width:900px`, `max-width:600px`, and print rules;
-- `data-file-ref` and `data-refs` in each Functions-table row;
-- `role`, `srp_status`, and `srp_rationale` values in each Functions-table row;
-- `status` chips in the Coupling and Criticality cells of each Relationships-table row;
-- a dedicated Risk cell, after Change, in each Impact Rules-table row;
-- tables for Domains, Functions, Relationships, Entities, Events, Workflows, Impact Rules, Cross-Cutting Rules, and Questions;
-- `scope="col"` in every table header and live result-status elements for every filtered table;
-- a `data-focus-id` control and `data-refs` support for cross-section focus;
-- no unresolved `{{...}}` markers remain.
+- `lang="en-US"`, the A/B/C screen markers, `global-search`, `focus-context`, and `data-function-focus`;
+- tables for Domains, Functions, Relationships, Entities, Events, Workflows, Impact Rules, and Shared Rules;
+- `scope="col"` in every table header;
+- the complete footer legend for identifiers, evidence states, focus states, SRP, risk, change type, coupling, criticality, and relationship types;
+- no external `<script src>`, CDN, Mermaid, network URL, or unresolved `{{...}}` marker;
+- all generated values escaped before insertion.
 
-If any check fails, the report was not regenerated from the current `mof-shell.html`; regenerate it before reporting success.
+Run the structural shell regression:
 
-## Human-oriented behavior
+```bash
+node skills/mof/test-mof-shell.mjs
+```
 
-The report presents a persistent header, section navigation, a global search, an investigation focus, and progressive disclosure through the tables. Selecting a Responsibility highlights every generated row whose `data-refs` contains that ID and scrolls to the focus area. The report occupies the available viewport, with horizontal table scrolling only when required. Filter, status, coupling, criticality, and risk chips remain on one line. Relationship search composes with its filters, every filter reads only its dedicated table columns, and result counts are announced after interaction. The Functions table supports risk, SRP, unverified, repeated-file, and domain filters; the Relationships table supports domain, relation type, reading, writing, and criticality filters. The repeated-file filter compares the generated physical-file `data-file-ref`, never rendered text. Empty, unverified, stale, and unresolved states remain textual as well as visual. The footer explains the MoF abbreviations used in the report. It is not part of the agent's Query flow and does not replace the Impact Index.
+The report is an optional projection for people. It does not replace Query or the global `impact_index`.
