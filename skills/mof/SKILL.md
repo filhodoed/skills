@@ -63,11 +63,11 @@ Every **Workflow** must answer: which Responsibilities compose it; where it star
 
 ### When to split by domain
 
-A single `docs/MOF.md` is the default. Past ~800 lines, split by domain: `docs/mof/<domain>.md` holds that domain's Responsibilities, Functions, Entities, Events, and intra-domain Relationships; `docs/MOF.md` remains the global source for Metadata, the complete `impact_index`, a domain table linking to each file, cross-domain Relationships and Impact Rules, Cross-Cutting Rules, Open Questions, and Revision History.
+Split by domain ownership, not by line count. A domain is a valid split when its Responsibilities have a coherent business capability and a clear owner, even when the file is short. Keep one `docs/MOF.md` when the project has no stable domain boundary or when splitting would create artificial fragments. When split, `docs/mof/<domain>.md` holds that domain's Responsibilities, Functions, Entities, Events, and intra-domain Relationships; `docs/MOF.md` remains the global source for Metadata, the complete `impact_index`, the domain registry, cross-domain Relationships and Impact Rules, Cross-Cutting Rules, Open Questions, and Revision History.
 
 **`impact_index` never splits.** It stays whole in `docs/MOF.md` covering every domain, so a cross-domain traversal still costs one file read. Never duplicate a Responsibility across two files.
 
-When a split map changes, update the owning domain file and the root `docs/MOF.md` in the same change. Keep domain-local responsibilities, functions, entities, events, and relationships in their domain file; keep cross-domain edges and global projections in the root file. A Responsibility has one home only, and the root index must be regenerated from all domain files after every structural change.
+When a split map changes, update the owning domain file and the root `docs/MOF.md` in the same change. Keep domain-local responsibilities, functions, entities, events, and relationships in their domain file; keep cross-domain edges and global projections in the root file. A Responsibility has one home only, and the root index must be regenerated from all domain files after every structural change. The root domain registry is the authoritative file-to-domain mapping; do not infer ownership from folder names alone.
 
 ### After a change lands
 
@@ -130,7 +130,7 @@ Make the plan explicit:
 
 Only on explicit user request ("visualize the MoF", "generate the technical report", "check for SRP violations", "audit the map") — never automatically after Map. Generating the HTML on every code change would add noise and unnecessary work.
 
-Produces `docs/MOF.html`: a static technical report with metadata, section navigation, global search, investigation focus, domains, functions, responsibilities, technical relationships, entities, events, workflows, impact rules, cross-cutting rules, open questions, and print-friendly CSS. A request framed as a checkup or audit gets the same output — the Functions table's `role`, `srp_status`, and `srp_rationale` provide the SRP decision view. The page shell is a fixed asset ([`mof-shell.html`](mof-shell.html)) that you copy and fill at its markers — never retype it. Fill procedure: [`visualization.md`](visualization.md).
+Produces `docs/MOF.html`: a static single-file technical workbench with metadata, global search, Function selection, A/B/C navigation, domains, Functions, Responsibilities, technical relationships, entities, events, workflows, impact rules, shared rules, open questions, a complete footer legend, and print-friendly CSS. A request framed as a checkup or audit gets the same output — the Functions table's `role`, `srp_status`, and `srp_rationale` provide the SRP decision view. The page shell is a fixed asset ([`mof-shell.html`](mof-shell.html)) that you copy and fill at its markers — never retype it. Fill procedure: [`visualization.md`](visualization.md).
 
 ---
 
