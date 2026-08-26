@@ -4,6 +4,8 @@ All notable changes to this project are documented here. Format follows [Keep a 
 
 ## [Unreleased]
 
+## [0.12.0] - 2026-08-25
+
 ### Changed
 
 - `mof`: domain splitting is ownership-first, with a root domain registry and the complete `impact_index` retained in `docs/MOF.md`.
