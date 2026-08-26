@@ -4,92 +4,63 @@ import vm from 'node:vm';
 
 const shell = await readFile(new URL('./mof-shell.html', import.meta.url), 'utf8');
 const script = shell.match(/<script>([\s\S]*)<\/script>/)?.[1];
-
 assert.ok(script, 'shell must contain a script');
 
-const makeRow = (cells, text, dataset = {}) => ({
-  cells: cells.map(textContent => ({ textContent })),
-  dataset,
-  hidden: false,
-  textContent: text,
-  querySelectorAll: () => [],
-});
-
-const makeBar = filters => ({
-  buttons: filters.map(filter => ({ dataset: { filter }, attributes: { 'aria-pressed': filter === 'all' ? 'true' : 'false' }, setAttribute(name, value) { this.attributes[name] = value; } })),
-  listeners: {},
-  addEventListener(type, listener) { this.listeners[type] = listener; },
-  appendChild(button) { this.buttons.push(button); },
-  querySelectorAll() { return this.buttons; },
-  querySelector(selector) { return selector === '[aria-pressed="true"]' ? this.buttons.find(button => button.attributes?.['aria-pressed'] === 'true') || this.buttons[0] : null; },
-});
-
-const relationshipRows = [
-  makeRow(['CORE', 'RESP_001', 'reads_from', 'API', '', '', '', 'critical'], 'alpha'),
-  makeRow(['CORE', 'RESP_002', 'calls', 'API', '', '', '', 'critical'], 'beta read in detail'),
-];
-const functionRows = [
-  makeRow(['CORE', 'F_001', 'src/a.ts', 'RESP_001', 'executor', 'ok', 'one reason', 'low'], '', { codeRef: 'src/a.ts:find' }),
-  makeRow(['CORE', 'F_002', 'src/a.ts', 'RESP_002', 'mixed', 'violation', 'two reasons', 'low'], '', { codeRef: 'src/a.ts:save' }),
-  makeRow(['CORE', 'F_003', 'src/b.ts', 'RESP_003', 'executor', 'ok', 'one reason', 'low'], '', { codeRef: 'src/b.ts:read' }),
-];
-const impactRows = [
-  makeRow(['IR_001', 'CORE', 'RESP_001', 'behavioral', 'high', '', ''], ''),
-  makeRow(['IR_002', 'CORE', 'RESP_002', 'behavioral', 'low', '', ''], ''),
-];
-const relationshipBar = makeBar(['all', 'cross-domain', 'critical', 'reads', 'writes']);
-const functionBar = makeBar(['all', 'high-risk', 'srp', 'unverified', 'repeated-file']);
-const impactBar = makeBar(['all', 'high', 'medium', 'low', 'breaking', 'behavioral']);
-const input = { value: '', listeners: {}, addEventListener(type, listener) { this.listeners[type] = listener; } };
-const results = { textContent: '' };
-const functionResults = { textContent: '' };
-const impactResults = { textContent: '' };
-const relationshipTable = { querySelectorAll: selector => selector === 'tbody tr' ? relationshipRows : [] };
-const functionTable = { querySelectorAll: selector => selector === 'tbody tr' ? functionRows : [] };
-const impactTable = { querySelectorAll: selector => selector === 'tbody tr' ? impactRows : [] };
+const node = (extra = {}) => ({ listeners: {}, hidden: false, dataset: {}, textContent: '', innerHTML: '', classList: { toggle() {}, add() {}, remove() {} }, addEventListener(type, listener) { this.listeners[type] = listener; }, ...extra });
+const rows = [node({ dataset: { refs: 'F_001' }, textContent: 'F_001 API approval' }), node({ dataset: { refs: 'F_002' }, textContent: 'F_002 billing' })];
+const focusButton = node({ dataset: { focusId: 'F_001', focusLabel: 'API approval' } });
+const focusCards = [node(), node(), node()];
+const clearButtons = [node(), node(), node()];
+const panels = ['A', 'B', 'C'].map(screen => node({ dataset: { screenPanel: screen }, classList: { toggle() {} } }));
+const tabs = ['relationships', 'entities'].map(tab => node({ dataset: { tab }, classList: { toggle() {} } }));
+const tabPanels = ['relationships', 'entities'].map(tab => node({ dataset: { tabPanel: tab }, classList: { toggle() {} } }));
+const sortButton = node({ dataset: { sortColumn: '1' } });
+const search = node({ value: '' });
+const label = node({ textContent: '' });
+const table = { querySelector: selector => selector === 'tbody' ? { rows, appendChild(row) { this.rows = this.rows.filter(item => item !== row); this.rows.push(row); } } : null };
 const document = {
-  createElement: () => ({ dataset: {}, setAttribute() {}, className: '', type: '', textContent: '' }),
-  addEventListener() {},
-  querySelectorAll: () => [],
-  getElementById(id) {
-    return id === 'relationships' ? relationshipTable : id === 'relationship-filters' ? relationshipBar : id === 'relationship-search' ? input : id === 'relationship-results' ? results : id === 'functions' ? functionTable : id === 'function-filters' ? functionBar : id === 'function-results' ? functionResults : id === 'impact' ? impactTable : id === 'impact-filters' ? impactBar : id === 'impact-results' ? impactResults : null;
+  querySelectorAll(selector) {
+    if (selector === '[data-screen-panel]') return panels;
+    if (selector === 'tbody tr') return rows;
+    if (selector === '[data-clear]') return clearButtons;
+    if (selector === '[data-focus-card]') return focusCards;
+    if (selector === '[data-function-focus], [data-focus-type="function"]') return [focusButton];
+    if (selector === '[data-sort-column]') return [sortButton];
+    if (selector === '[data-tab]') return tabs;
+    if (selector === '[data-drill]') return [];
+    if (selector === '[data-tab-panel]') return tabPanels;
+    return [];
   },
+  querySelector(selector) { return selector === '#screen-a table.functions' ? table : null; },
+  getElementById(id) { return id === 'global-search' ? search : id === 'screen-label' ? label : id === 'previous' || id === 'next' ? node() : null; },
 };
 
-vm.runInNewContext(script, { clearTimeout() {}, document, Map, Set, window: {}, setTimeout: callback => callback() });
+vm.runInNewContext(script, { document, Map, Set });
 
-input.value = 'alpha';
-input.listeners.input();
-assert.deepEqual(relationshipRows.map(row => row.hidden), [false, true]);
-relationshipBar.listeners.click({ target: { closest: () => relationshipBar.buttons[2] } });
-assert.deepEqual(relationshipRows.map(row => row.hidden), [false, true]);
-input.value = '';
-input.listeners.input();
-relationshipBar.listeners.click({ target: { closest: () => relationshipBar.buttons[3] } });
-assert.deepEqual(relationshipRows.map(row => row.hidden), [false, true]);
-assert.equal(results.textContent, '1 relacionamento encontrado.');
+focusButton.listeners.click({ preventDefault() {} });
+assert.equal(rows[0].hidden, false);
+assert.equal(rows[1].hidden, true);
+clearButtons[0].listeners.click();
+assert.equal(rows[1].hidden, false);
+search.value = 'billing';
+search.listeners.input({ target: search });
+assert.equal(label.textContent, 'A — Select context');
 
-functionBar.listeners.click({ target: { closest: () => functionBar.buttons[4] } });
-assert.deepEqual(functionRows.map(row => row.hidden), [false, false, true]);
-assert.equal(functionResults.textContent, '2 funções encontradas.');
-
-impactBar.listeners.click({ target: { closest: () => impactBar.buttons[1] } });
-assert.deepEqual(impactRows.map(row => row.hidden), [false, true]);
-assert.equal(impactResults.textContent, '1 regra de impacto encontrada.');
-assert.ok([...shell.matchAll(/<th\b[^>]*>/g)].every(match => /scope="col"/.test(match[0])));
-assert.match(shell, /id="relationship-results"[^>]*aria-live="polite"/);
-assert.match(shell, /id="function-results"[^>]*aria-live="polite"/);
-assert.match(shell, /id="impact-results"[^>]*aria-live="polite"/);
+assert.match(shell, /<html lang="en-US">/);
+assert.match(shell, /data-function-focus/);
+assert.match(shell, /data-sort-column/);
+assert.match(shell, /data-drill/);
+assert.match(shell, /id="screen-a"/);
+assert.match(shell, /id="screen-b"/);
+assert.match(shell, /id="screen-c"/);
+assert.match(shell, /ROWS_FUNCTIONS_CONTEXT/);
 assert.match(shell, /id="global-search"/);
 assert.match(shell, /id="focus-context"/);
-assert.match(shell, /id="entities"/);
-assert.match(shell, /id="events"/);
-assert.match(shell, /id="workflows"/);
-assert.match(shell, /id="cross-cutting-table"/);
-assert.match(shell, /data-focus-id/);
-assert.match(shell, /const setActive = id => buttons\.forEach/);
-assert.match(shell, /getBoundingClientRect\(\)\.top <= 110/);
-assert.match(shell, /window\.innerHeight \+ window\.scrollY >= document\.documentElement\.scrollHeight - 2/);
-assert.match(shell, /border-radius:999px/);
+assert.match(shell, /FOCUS|Focus|focus/);
+assert.match(shell, /SRP/);
+assert.match(shell, /Impact rules/);
+assert.doesNotMatch(shell, /<script[^>]+src=/i);
+assert.doesNotMatch(shell, /https?:\/\//i);
+assert.equal((shell.match(/<th\b/g) || []).length, (shell.match(/<th\b[^>]*scope="col"/g) || []).length);
 
-console.log('MoF shell regressions: OK');
+console.log('MoF workbench shell regressions: OK');

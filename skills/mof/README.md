@@ -68,7 +68,7 @@ The source of truth is `docs/MOF.md`, structured as Markdown with YAML blocks:
 - `impact_rules` and `cross_cutting` — required review actions and shared constraints;
 - `open_questions` and revision history — visible uncertainty and traceability.
 
-When the map is split, `docs/MOF.md` owns the complete Impact Index, metadata, cross-domain relationships, global rules, open questions, and revision history. `docs/mof/<domain>.md` owns local domain content. A Responsibility has exactly one home.
+When the map is split, `docs/MOF.md` owns the complete Impact Index, metadata, domain registry, cross-domain relationships, global rules, open questions, and revision history. `docs/mof/<domain>.md` owns local domain content. Split by domain ownership, not line count, and keep each Responsibility in exactly one home.
 
 ## Example prompts
 
@@ -118,14 +118,12 @@ The MoF is maintained as a portable skill with evidence-based freshness checks, 
 
 ## Technical report
 
-`docs/MOF.html` is an optional projection for human technical investigation, not part of the agent's Query flow. It contains:
+`docs/MOF.html` is an optional single-file projection for human technical investigation, not part of the agent's Query flow. It contains:
 
-- persistent section navigation, global search, and a Responsibility investigation focus;
-- metadata, summary counts, and explicit evidence states;
-- domains, functions, responsibilities, Function role, SRP status, and SRP rationale;
-- technical relationships with source domain, destination domain, relation, coupling, channel, criticality, and details;
-- entities, events, workflows, impact rules, cross-cutting rules, and open questions;
-- local filters, cross-section focus references, responsive layouts, abbreviation legend, and print-friendly CSS.
+- A, B, and C screens for Function selection, decision overview, and evidence drilldown;
+- global search, sortable Function columns, explicit Select/Deselect controls, and persistent Function focus;
+- domains, Functions, Responsibilities, technical relationships, entities, events, workflows, impact rules, shared rules, and open questions;
+- responsive layouts, a complete identifier/status legend, and print-friendly CSS.
 
 The report uses only HTML, CSS, and small local JavaScript. It does not require a database, server, Mermaid, CDN, or network access. `docs/MOF.md` remains the only source of truth.
 

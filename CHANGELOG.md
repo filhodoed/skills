@@ -4,6 +4,11 @@ All notable changes to this project are documented here. Format follows [Keep a 
 
 ## [Unreleased]
 
+### Changed
+
+- `mof`: domain splitting is ownership-first, with a root domain registry and the complete `impact_index` retained in `docs/MOF.md`.
+- `mof`: the technical report workbench is being migrated to a self-contained EN-US A/B/C flow with Function-only focus.
+
 ## [0.11.0] - 2026-08-23
 
 ### Added
@@ -44,7 +49,7 @@ All notable changes to this project are documented here. Format follows [Keep a 
 
 ### Changed
 
-- `mof`: the Functions table now exposes `Arquivo` as a separate column next to `Função`.
+- `mof`: the Functions table now exposes `File` as a separate column next to `Function`.
 - `mof`: Coupling and Criticality values in the Relationships table now render as status chips.
 - `mof`: Impact Rules now separates change type from risk in dedicated columns.
 - `mof`: Impact Rules IDs and change types now remain on one line.
