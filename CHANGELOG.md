@@ -4,6 +4,12 @@ All notable changes to this project are documented here. Format follows [Keep a 
 
 ## [Unreleased]
 
+## [0.13.0] - 2026-08-30
+
+### Changed
+
+- `digest-refine`: when an approved item's content hash no longer appears among surviving items (merged, resolved, or dropped as duplicate/superseded), the skill now calls `refine.mjs` with `supersede` followed by `purge` on the same hash in one batch, instead of leaving the gap unhandled.
+
 ## [0.12.0] - 2026-08-25
 
 ### Changed

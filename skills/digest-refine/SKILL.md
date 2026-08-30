@@ -128,7 +128,9 @@ Suggested confidence:
 - `0.8` for a durable item surviving without a merge;
 - `0.6` for an unresolved action that is useful current state, not settled fact.
 
-The operation is idempotent by `content_hash`. Reprocess every hash in the previous `digest:sync pending=...` marker before new items. Keep failed hashes in the new marker and retry them on the next run. This makes a temporary Ollama or runtime failure recoverable without rewriting the digest again. If an approved item disappears because it was resolved or superseded, do not silently claim reconciliation: report it as `approved record requiring supersession handling` because the current core does not delete approved records through `reject`.
+The operation is idempotent by `content_hash`. Reprocess every hash in the previous `digest:sync pending=...` marker before new items. Keep failed hashes in the new marker and retry them on the next run. This makes a temporary Ollama or runtime failure recoverable without rewriting the digest again.
+
+If an approved item's content hash no longer appears among the surviving items — merged into another bullet, resolved, or dropped as duplicate/superseded — call `refine.mjs` with `type: "supersede"` (old hash) followed by `type: "purge"` (same hash) in the same call, so the obsolete approved record is retired and removed in one auditable step. Never call `purge` alone on an approved hash; `supersede` must run first in the same batch.
 
 If no semantic runtime is configured, mark `unavailable`. If a configured runtime fails, mark `pending` and report the failure while preserving the rewritten digest.
 
