@@ -4,3 +4,6 @@
 # workspace privado do autor via @import; não faz sentido pra quem clona o repo.
 CLAUDE.md
 AGENTS.md
+
+# memória gerada pra retroalimentar o agente neste repo — nunca committed
+memory/
