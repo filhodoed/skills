@@ -4,6 +4,8 @@ All notable changes to this project are documented here. Format follows [Keep a 
 
 ## [Unreleased]
 
+## [0.14.0] - 2026-09-07
+
 ### Added
 
 - `mof`: SOLID coverage beyond Single Responsibility. Functions now carry `nature` (concrete or abstract), `ocp_status`, and `ocp_rationale`; relationships accept `implements`/`extends` types and a `consumed_interfaces` list; cross-cutting rules accept `kind: architecture`. Only `srp:` and `ocp:` project into `impact_index` — Liskov, Interface Segregation, and Dependency Inversion are read live from records already open in the radius, so no verdict can go stale between Map runs.
