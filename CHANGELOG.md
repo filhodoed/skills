@@ -4,6 +4,30 @@ All notable changes to this project are documented here. Format follows [Keep a 
 
 ## [Unreleased]
 
+### Added
+
+- `mof`: SOLID coverage beyond Single Responsibility. Functions now carry `nature` (concrete or abstract), `ocp_status`, and `ocp_rationale`; relationships accept `implements`/`extends` types and a `consumed_interfaces` list; cross-cutting rules accept `kind: architecture`. Only `srp:` and `ocp:` project into `impact_index` — Liskov, Interface Segregation, and Dependency Inversion are read live from records already open in the radius, so no verdict can go stale between Map runs.
+- `mof`: abstract artifacts (interfaces, abstract classes, ports) are mapped as Responsibilities describing their contract, so `implements`/`extends` edges have a target and an interface change resolves a real blast radius.
+- `mof`: Query traverses upstream through `dep:` for a seed whose Function is abstract, because a contract's implementors break when the contract changes.
+- `mof`: the report gained the Responsibilities and Open questions panels that `SKILL.md`, `README.md`, and the visualization contract had always claimed it had. `{{ROWS_QUESTIONS}}` was documented with nowhere in the shell to go, and Responsibilities — the map's atomic unit since 0.5.0 — was reachable only through the Functions that group them.
+
+### Fixed
+
+- `mof`: the report shell shipped hardcoded sample content in the B-screen decision cards, so every generated report described a fictional billing system regardless of the mapped project. The cards are now a `{{DECISIONS}}` marker filled from the map.
+- `mof`: printing a report emitted only the active evidence tab while hiding the tab control, silently dropping six of the seven evidence tables, and repeated the footer legend three times.
+- `mof`: tab chips on screen C never received their active state, and the Select/Deselect control never reflected selection — both had styling that no code applied.
+- `mof`: the `#function-results` live region was never written to, leaving the result count permanently empty.
+- `mof`: row focus matched `data-refs` as a substring, so `F_0011` matched a focus on `F_001`.
+- `mof`: the C-screen Functions table rendered outside `<main>` and after the footer legend.
+- `mof`: selected rows were marked with a 2px outline that imitated a focus ring at 1.9:1 contrast, below the 3:1 required for a state indicator. Selection now uses a solid inset bar, and keyboard focus has its own outline, distinct from hover.
+- `mof`: added the accessibility semantics the workbench claimed but never provided — `role="tabpanel"` with `aria-labelledby`, `aria-selected` and roving `tabindex` on chips, arrow-key tab navigation, `aria-sort` on sortable headers, and `aria-pressed` on the selection control.
+
+### Changed
+
+- `mof`: removed `mof_meta.freshness`. A map-level freshness verdict decays the moment any commit lands, while Query classifies freshness per seed; `last_updated` and `last_commit` remain as the raw evidence it derives from.
+- `mof`: the visualization contract now pins the cell count and order of every row marker, the required attributes of each tab chip, and the content of each decision card. The shell regression test verifies the contract against the shell in both directions, so a documented table with no home — or a shell table with no contract — fails the build.
+- `mof`: the report's footer legend sat on a bare `border-top` with no container; it now uses the same card treatment as every other section.
+
 ## [0.13.0] - 2026-08-30
 
 ### Changed
