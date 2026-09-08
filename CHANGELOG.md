@@ -4,6 +4,16 @@ All notable changes to this project are documented here. Format follows [Keep a 
 
 ## [Unreleased]
 
+### Added
+
+- `mof`: SOLID coverage beyond Single Responsibility. Functions now carry `nature` (concrete or abstract), `ocp_status`, and `ocp_rationale`; relationships accept `implements`/`extends` types and a `consumed_interfaces` list; cross-cutting rules accept `kind: architecture`. Only `srp:` and `ocp:` project into `impact_index` — Liskov, Interface Segregation, and Dependency Inversion are read live from records already open in the radius, so no verdict can go stale between Map runs.
+- `mof`: abstract artifacts (interfaces, abstract classes, ports) are mapped as Responsibilities describing their contract, so `implements`/`extends` edges have a target and an interface change resolves a real blast radius.
+- `mof`: Query traverses upstream through `dep:` for a seed whose Function is abstract, because a contract's implementors break when the contract changes.
+
+### Changed
+
+- `mof`: removed `mof_meta.freshness`. A map-level freshness verdict decays the moment any commit lands, while Query classifies freshness per seed; `last_updated` and `last_commit` remain as the raw evidence it derives from.
+
 ## [0.13.0] - 2026-08-30
 
 ### Changed

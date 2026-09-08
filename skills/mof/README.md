@@ -15,6 +15,9 @@ The MoF helps answer questions such as:
 - Which contracts and tests should be reviewed before the change?
 - Is the map fresh, stale, or not verifiable?
 - Which relationships cross domain boundaries?
+- Does this artifact hold one reason to change, and can it be extended without editing it (SRP, OCP)?
+- Does a subtype honor its supertype's contract, and is a caller coupled to more surface than it uses (LSP, ISP)?
+- Does a dependency reach across a domain boundary into a concrete implementation instead of an abstraction (DIP)?
 
 ## Operating modes
 
@@ -22,7 +25,7 @@ The MoF helps answer questions such as:
 | --- | --- | --- |
 | **Map** | There is no MoF, the map is stale, or a change landed | Incrementally discovers domains, responsibilities, functions, relationships, entities, events, impact rules, and cross-cutting rules. |
 | **Query** | A change touches logic, contracts, or behavior | Reads `mof_meta` and `impact_index` first, opens only the source sections needed to complete traversal, verifies freshness, calculates the impact radius, and reports evidence paths before details. |
-| **Visualize** | A professional needs a human investigation report | Generates `docs/MOF.html`, a dependency-free technical workbench with section navigation, global search, Responsibility focus, cross-section references, local filters, and print styles. |
+| **Visualize** | A professional needs a human investigation report, or a SOLID checkup | Generates `docs/MOF.html`, a dependency-free technical workbench with section navigation, global search, Responsibility focus, cross-section references, local filters, and print styles. |
 
 Cosmetic changes such as formatting, comments, or documentation typos can skip Query.
 
@@ -36,7 +39,7 @@ metadata and Impact Index
 → downstream calls
 → shared entities
 → published and consumed events
-→ shared-code exposure and SRP
+→ shared-code exposure and SOLID compliance
 → affected workflows
 → impact rules
 → cross-cutting rules
@@ -61,10 +64,10 @@ The source of truth is `docs/MOF.md`, structured as Markdown with YAML blocks:
 - `mof_meta` — identity, version, update timestamp, commit, and domains;
 - `impact_index` — compact traversal projection;
 - `responsibilities` — atomic reasons to change;
-- `functions` — code artifacts grouping responsibilities, their role, SRP status, and the rationale for that status;
+- `functions` — code artifacts grouping responsibilities, their role, nature (concrete or abstract), and SRP/OCP status with rationale;
 - `entities` and `events` — state paths invisible to a direct call graph;
 - `workflows` — end-to-end sequences;
-- `relationships` — the single source of truth for edges;
+- `relationships` — the single source of truth for edges, including the evidence (`consumed_interfaces`, `implements`/`extends` typing) a Query reads live for LSP and ISP;
 - `impact_rules` and `cross_cutting` — required review actions and shared constraints;
 - `open_questions` and revision history — visible uncertainty and traceability.
 
